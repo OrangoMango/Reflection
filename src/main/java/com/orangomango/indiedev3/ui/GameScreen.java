@@ -1,0 +1,31 @@
+package com.orangomango.indiedev3.ui;
+
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.canvas.GraphicsContext;
+
+import java.util.HashMap;
+import java.util.function.Consumer;
+
+public abstract class GameScreen{
+	protected int width, height;
+	protected HashMap<KeyCode, Boolean> keys;
+
+	public static Consumer<GameScreen> SCREEN_SWITCHER;
+
+	public GameScreen(int w, int h, HashMap<KeyCode, Boolean> keys){
+		this.width = w;
+		this.height = h;
+		this.keys = keys;
+	}
+
+	public abstract void handleMouseInput(MouseEvent event);
+	
+	public void update(GraphicsContext gc, double scale){
+		gc.clearRect(0, 0, this.width, this.height);
+
+		if (this.keys.getOrDefault(KeyCode.ESCAPE, false)){
+			System.exit(0);
+		}
+	}
+}
