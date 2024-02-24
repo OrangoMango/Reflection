@@ -50,6 +50,7 @@ public class MainApplication extends Application{
 		canvas.setOnKeyPressed(e -> this.keys.put(e.getCode(), true));
 		canvas.setOnKeyReleased(e -> this.keys.put(e.getCode(), false));
 		canvas.setOnMousePressed(e -> this.currentScreen.handleMouseInput(e));
+		canvas.setOnMouseMoved(e -> this.currentScreen.handleMouseMovement(e));
 
 		AnimationTimer loop = new AnimationTimer(){
 			@Override
