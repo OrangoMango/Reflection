@@ -1,4 +1,4 @@
-package com.orangomango.indiedev3;
+package com.orangomango.reflectiongame;
 
 import javafx.scene.image.Image;
 import javafx.scene.media.Media;

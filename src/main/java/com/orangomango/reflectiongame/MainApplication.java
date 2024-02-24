@@ -1,4 +1,4 @@
-package com.orangomango.indiedev3;
+package com.orangomango.reflectiongame;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -11,15 +11,15 @@ import javafx.scene.paint.Color;
 
 import java.util.HashMap;
 
-import com.orangomango.indiedev3.ui.*;
+import com.orangomango.reflectiongame.ui.*;
 
 public class MainApplication extends Application{
 	private GameScreen currentScreen;
 	private HashMap<KeyCode, Boolean> keys = new HashMap<>();
 	private int fps, frames;
 
-	private static final int WIDTH = 1000;
-	private static final int HEIGHT = 800;
+	private static final int WIDTH = 800;
+	private static final int HEIGHT = 600;
 	private static final double SCALE = 1;
 
 	@Override
@@ -49,7 +49,7 @@ public class MainApplication extends Application{
 		canvas.setFocusTraversable(true);
 		canvas.setOnKeyPressed(e -> this.keys.put(e.getCode(), true));
 		canvas.setOnKeyReleased(e -> this.keys.put(e.getCode(), false));
-		canvas.setOnMousePressed(e -> this.currentScreen.handleMouseInput(e));
+		canvas.setOnMousePressed(e -> this.currentScreen.handleMouseInput(e)); // TODO: Fix scale
 		canvas.setOnMouseMoved(e -> this.currentScreen.handleMouseMovement(e));
 
 		AnimationTimer loop = new AnimationTimer(){
@@ -65,7 +65,7 @@ public class MainApplication extends Application{
 		scene.setFill(Color.BLACK);
 		stage.setScene(scene);
 
-		stage.setTitle("IndieDev3 game jam");
+		stage.setTitle("Reflection");
 		stage.setResizable(false);
 		stage.show();
 	}

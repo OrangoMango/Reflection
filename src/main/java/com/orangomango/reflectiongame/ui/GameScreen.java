@@ -1,4 +1,4 @@
-package com.orangomango.indiedev3.ui;
+package com.orangomango.reflectiongame.ui;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;

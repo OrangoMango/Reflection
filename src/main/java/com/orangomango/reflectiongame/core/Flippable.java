@@ -1,4 +1,4 @@
-package com.orangomango.indiedev3.core;
+package com.orangomango.reflectiongame.core;
 
 public interface Flippable{
 	public void flip();

@@ -1,4 +1,4 @@
-package com.orangomango.indiedev3.core;
+package com.orangomango.reflectiongame.core;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -6,7 +6,7 @@ import javafx.geometry.Point2D;
 
 import java.util.ArrayList;
 
-import com.orangomango.indiedev3.Util;
+import com.orangomango.reflectiongame.Util;
 
 public class Laser{
 	private int x, y;
@@ -23,10 +23,11 @@ public class Laser{
 		update();
 	}
 
-	public void update(){
+	public void update(){ // TODO: This function must return the number of checkpoints passed
 		int cx = this.x;
 		int cy = this.y;
 		int dir = this.direction;
+		int lastDir = dir;
 		this.points.clear();
 		this.generatedLasers.clear();
 		this.points.add(new Point2D(cx+0.5, cy+0.5));
@@ -39,9 +40,20 @@ public class Laser{
 			if (tile != null){
 				Laser gen = tile.generateLaser(this.world, dir);
 				if (gen != null) this.generatedLasers.add(gen);
+				lastDir = dir;
 				dir = tile.updateDirection(dir);
 			}
-		} while (this.world.containsPoint(cx, cy));
+		} while (this.world.containsPoint(cx, cy) && dir != -1);
+
+		Point2D lastPoint = this.points.get(this.points.size()-1);
+		this.points.remove(lastPoint);
+		this.points.add(Util.reducePoint(lastPoint, dir == -1 ? lastDir : dir));
+
+		for (Light light : this.world.getLights()){
+			if (cx == light.getX() && cy == light.getY()){
+				light.setOn(true);
+			}
+		}
 	}
 
 	private void renderLaser(GraphicsContext gc){

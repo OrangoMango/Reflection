@@ -19,7 +19,7 @@ tasks.withType(JavaCompile) {
 }
 
 application {
-    mainClass = 'com.orangomango.indiedev3.Launcher'
+    mainClass = 'com.orangomango.reflectiongame.Launcher'
 }
 
 javafx {

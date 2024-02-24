@@ -1,9 +1,9 @@
-package com.orangomango.indiedev3.core;
+package com.orangomango.reflectiongame.core;
 
 import javafx.scene.canvas.GraphicsContext;
 
-import com.orangomango.indiedev3.AssetLoader;
-import com.orangomango.indiedev3.Util;
+import com.orangomango.reflectiongame.AssetLoader;
+import com.orangomango.reflectiongame.Util;
 
 public class Mirror extends Tile implements Flippable{
 	protected boolean flipped;
