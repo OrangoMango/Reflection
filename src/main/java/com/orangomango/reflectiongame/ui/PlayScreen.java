@@ -147,6 +147,12 @@ public class PlayScreen extends GameScreen{
 			light.setOn(false);
 		}
 		this.currentLaser.update();
+		if (this.currentLaser.getCheckpointsPassed() == this.currentWorld.getCheckpoints()){
+			boolean allOn = this.currentWorld.getLights().stream().map(Light::isOn).filter(b -> !b).findAny().isEmpty();
+			if (allOn){
+				System.out.println("Done");
+			}
+		}
 	}
 
 	@Override

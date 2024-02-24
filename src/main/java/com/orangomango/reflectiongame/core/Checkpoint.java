@@ -3,12 +3,21 @@ package com.orangomango.reflectiongame.core;
 import javafx.scene.canvas.GraphicsContext;
 
 import com.orangomango.reflectiongame.AssetLoader;
+import com.orangomango.reflectiongame.Util;
 
 public class Checkpoint extends Tile implements Flippable{
 	private boolean flipped;
 
 	public Checkpoint(int x, int y){
 		super(x, y);
+	}
+
+	public boolean laserPassed(int dir){
+		if (this.flipped){
+			return dir == Util.DIRECTION_E || dir == Util.DIRECTION_W;
+		} else {
+			return dir == Util.DIRECTION_N || dir == Util.DIRECTION_S;
+		}
 	}
 
 	@Override

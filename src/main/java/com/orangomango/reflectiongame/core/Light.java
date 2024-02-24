@@ -28,4 +28,8 @@ public class Light{
 	public void setOn(boolean value){
 		this.on = value;
 	}
+
+	public boolean isOn(){
+		return this.on;
+	}
 }

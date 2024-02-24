@@ -14,6 +14,7 @@ public class Laser{
 	private ArrayList<Point2D> points = new ArrayList<>();
 	private ArrayList<Laser> generatedLasers = new ArrayList<>();
 	private World world;
+	private int checkpointsPassed;
 
 	public Laser(World world, int x, int y, int d){
 		this.world = world;
@@ -23,11 +24,12 @@ public class Laser{
 		update();
 	}
 
-	public void update(){ // TODO: This function must return the number of checkpoints passed
+	public void update(){
 		int cx = this.x;
 		int cy = this.y;
 		int dir = this.direction;
 		int lastDir = dir;
+		this.checkpointsPassed = 0;
 		this.points.clear();
 		this.generatedLasers.clear();
 		this.points.add(new Point2D(cx+0.5, cy+0.5));
@@ -42,6 +44,12 @@ public class Laser{
 				if (gen != null) this.generatedLasers.add(gen);
 				lastDir = dir;
 				dir = tile.updateDirection(dir);
+
+				if (tile instanceof Checkpoint){
+					if (((Checkpoint)tile).laserPassed(dir)){
+						this.checkpointsPassed++;
+					}
+				}
 			}
 		} while (this.world.containsPoint(cx, cy) && dir != -1);
 
@@ -75,5 +83,13 @@ public class Laser{
 
 		// Render the laser
 		renderLaser(gc);
+	}
+
+	public int getCheckpointsPassed(){
+		int sum = this.checkpointsPassed;
+		for (Laser laser : this.generatedLasers){
+			sum += laser.getCheckpointsPassed();
+		}
+		return sum;
 	}
 }

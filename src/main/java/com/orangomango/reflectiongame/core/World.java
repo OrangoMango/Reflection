@@ -8,6 +8,7 @@ public class World{
 	private int width, height;
 	private Tile[][] map;
 	private ArrayList<Light> lights;
+	private int checkpoints;
 
 	public World(ArrayList<String> world, ArrayList<Light> lights){
 		this.width = world.get(0).split(" ").length;
@@ -38,6 +39,7 @@ public class World{
 						break;
 					case 6:
 						this.map[x][y] = new Checkpoint(x, y);
+						this.checkpoints++;
 						break;
 					case 7:
 						this.map[x][y] = new SingleMirror(x, y);
@@ -97,5 +99,9 @@ public class World{
 
 	public int getHeight(){
 		return this.height;
+	}
+
+	public int getCheckpoints(){
+		return this.checkpoints;
 	}
 }
