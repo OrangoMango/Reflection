@@ -7,7 +7,7 @@ import com.orangomango.reflectiongame.AssetLoader;
 public class Tile{
 	protected int x, y;
 	private boolean prePlaced;
-	private int id;
+	protected int id;
 
 	public static final double SIZE = 80;
 
@@ -26,10 +26,6 @@ public class Tile{
 
 	public void render(GraphicsContext gc){
 		gc.drawImage(AssetLoader.getInstance().getImage("tile.png"), this.x*SIZE, this.y*SIZE, SIZE, SIZE);
-	}
-
-	public void setId(int id){
-		this.id = id;
 	}
 
 	public int getId(){

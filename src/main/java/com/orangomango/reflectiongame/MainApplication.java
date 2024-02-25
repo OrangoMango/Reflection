@@ -75,7 +75,7 @@ public class MainApplication extends Application{
 
 		// Display FPS
 		gc.setFill(Color.WHITE);
-		gc.fillText("FPS: "+this.fps, 20, 40);
+		gc.fillText("FPS: "+this.fps, 20, HEIGHT-20);
 	}
 
 	public static void main(String[] args){

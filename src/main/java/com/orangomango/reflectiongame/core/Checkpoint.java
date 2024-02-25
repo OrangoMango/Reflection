@@ -10,6 +10,7 @@ public class Checkpoint extends Tile implements Flippable{
 
 	public Checkpoint(int x, int y){
 		super(x, y);
+		this.id = 3;
 	}
 
 	public boolean laserPassed(int dir){

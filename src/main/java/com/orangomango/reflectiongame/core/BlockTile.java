@@ -7,6 +7,7 @@ import com.orangomango.reflectiongame.AssetLoader;
 public class BlockTile extends Tile{
 	public BlockTile(int x, int y){
 		super(x, y);
+		this.id = 5;
 	}
 
 	@Override

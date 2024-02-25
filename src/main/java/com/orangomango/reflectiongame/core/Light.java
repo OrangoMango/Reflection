@@ -3,6 +3,8 @@ package com.orangomango.reflectiongame.core;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
+import com.orangomango.reflectiongame.Util;
+
 public class Light{
 	private boolean on;
 	private int x, y;
@@ -12,9 +14,30 @@ public class Light{
 		this.y = y;
 	}
 
-	public void render(GraphicsContext gc){
+	public void render(GraphicsContext gc, Rotatable tile){
 		gc.setFill(this.on ? Color.GREEN : Color.RED);
-		gc.fillOval(this.x*Tile.SIZE+Tile.SIZE/3, this.y*Tile.SIZE+Tile.SIZE/3, Tile.SIZE/3, Tile.SIZE/3);
+		int[] dir = tile == null ? null : Util.getDirection(getDirection(tile.getRotation()));
+		gc.save();
+		gc.translate(this.x*Tile.SIZE+Tile.SIZE/2, this.y*Tile.SIZE+Tile.SIZE/2);
+		if (dir != null) gc.translate(Tile.SIZE/3*dir[0], Tile.SIZE/3*dir[1]);
+		final double size = Tile.SIZE/4;
+		gc.fillOval(-size/2, -size/2, size, size);
+		gc.restore();
+	}
+
+	private int getDirection(int dir){
+		switch (dir){
+			case Util.DIRECTION_N:
+				return Util.DIRECTION_S;
+			case Util.DIRECTION_E:
+				return Util.DIRECTION_W;
+			case Util.DIRECTION_S:
+				return Util.DIRECTION_N;
+			case Util.DIRECTION_W:
+				return Util.DIRECTION_E;
+			default:
+				return -1;
+		}
 	}
 
 	public int getX(){

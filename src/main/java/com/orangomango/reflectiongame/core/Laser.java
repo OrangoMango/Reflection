@@ -51,7 +51,7 @@ public class Laser{
 					}
 				}
 			}
-		} while (this.world.containsPoint(cx, cy) && dir != -1);
+		} while (this.world.containsPoint(cx, cy) && dir != -1 && this.points.size() < 25);
 
 		Point2D lastPoint = this.points.get(this.points.size()-1);
 		this.points.remove(lastPoint);
@@ -59,7 +59,10 @@ public class Laser{
 
 		for (Light light : this.world.getLights()){
 			if (cx == light.getX() && cy == light.getY()){
-				light.setOn(true);
+				Tile tile = this.world.getTileAt(cx, cy);
+				if (tile == null || lastDir == ((Rotatable)tile).getRotation()){
+					light.setOn(true);
+				}
 			}
 		}
 	}
@@ -83,6 +86,10 @@ public class Laser{
 
 		// Render the laser
 		renderLaser(gc);
+	}
+
+	public void rotate90(){
+		this.direction = (this.direction+1) % 4;
 	}
 
 	public int getCheckpointsPassed(){

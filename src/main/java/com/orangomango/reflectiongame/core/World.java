@@ -4,16 +4,21 @@ import javafx.scene.canvas.GraphicsContext;
 
 import java.util.ArrayList;
 
+import com.orangomango.reflectiongame.core.inventory.Inventory;
+
 public class World{
 	private int width, height;
 	private Tile[][] map;
 	private ArrayList<Light> lights;
 	private int checkpoints;
+	private Laser laser;
+	private Inventory inventory;
 
-	public World(ArrayList<String> world, ArrayList<Light> lights){
+	public World(ArrayList<String> world, ArrayList<Light> lights, Inventory inv){
 		this.width = world.get(0).split(" ").length;
 		this.height = world.size();
 		this.lights = lights;
+		this.inventory = inv;
 		this.map = new Tile[this.width][this.height];
 		for (int x = 0; x < this.width; x++){
 			for (int y = 0; y < this.height; y++){
@@ -35,37 +40,37 @@ public class World{
 						this.map[x][y] = new Splitter(x, y, true);
 						break;
 					case 5:
-						this.map[x][y] = new Wall(x, y);
-						break;
-					case 6:
 						this.map[x][y] = new Checkpoint(x, y);
 						this.checkpoints++;
 						break;
-					case 7:
+					case 6:
 						this.map[x][y] = new SingleMirror(x, y);
 						break;
-					case 8:
+					case 7:
 						this.map[x][y] = new BlockTile(x, y);
+						break;
+					case 8:
+						this.map[x][y] = new LaserTile(x, y);
 						break;
 				}
 
 				// This is a pre-placed tile
 				this.map[x][y].setPrePlaced(true);
-				this.map[x][y].setId(id);
 			}
 		}
 	}
 
 	public void render(GraphicsContext gc){
-		for (Light light : this.lights){
-			light.render(gc);
-		}
-
 		for (int x = 0; x < this.width; x++){
 			for (int y = 0; y < this.height; y++){
 				Tile tile = this.map[x][y];
 				tile.render(gc);
 			}
+		}
+
+		for (Light light : this.lights){
+			Tile tile = getTileAt(light.getX(), light.getY());
+			light.render(gc, tile == null ? null : (Rotatable)tile);
 		}
 	}
 
@@ -83,6 +88,10 @@ public class World{
 		} else {
 			return null;
 		}
+	}
+
+	public Laser getLaser(){
+		return this.laser;
 	}
 
 	public ArrayList<Light> getLights(){
@@ -103,5 +112,9 @@ public class World{
 
 	public int getCheckpoints(){
 		return this.checkpoints;
+	}
+
+	public Inventory getInventory(){
+		return this.inventory;
 	}
 }

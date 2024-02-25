@@ -6,7 +6,10 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.image.Image;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.util.Pair;
+import javafx.geometry.Rectangle2D;
 
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -15,6 +18,7 @@ import java.io.*;
 import com.orangomango.reflectiongame.AssetLoader;
 import com.orangomango.reflectiongame.Util;
 import com.orangomango.reflectiongame.core.*;
+import com.orangomango.reflectiongame.core.inventory.Inventory;
 
 public class PlayScreen extends GameScreen{
 	private World currentWorld;
@@ -23,6 +27,8 @@ public class PlayScreen extends GameScreen{
 	private int selectedItem = -1;
 	private double spaceX, spaceY;
 	private ArrayList<Pair<World, Laser>> worlds = new ArrayList<>();
+
+	private static final Font FONT = Font.loadFont(PlayScreen.class.getResourceAsStream("/misc/font.ttf"), 40);
 
 	public PlayScreen(int w, int h, HashMap<KeyCode, Boolean> keys){
 		super(w, h, keys);
@@ -33,6 +39,7 @@ public class PlayScreen extends GameScreen{
 			String line;
 			World cWorld = null;
 			Laser cLaser = null;
+			Inventory cInv = null;
 			ArrayList<Light> lights = new ArrayList<>();
 			ArrayList<String> matrix = new ArrayList<>();
 			while ((line = reader.readLine()) != null){
@@ -47,11 +54,16 @@ public class PlayScreen extends GameScreen{
 							int ly = Integer.parseInt(line.substring(2).split(" ")[1]);
 							lights.add(new Light(lx, ly));
 						} else if (line.startsWith("- ")){
-							cWorld = new World(matrix, new ArrayList<>(lights));
+							cWorld = new World(matrix, new ArrayList<>(lights), cInv);
 							int lx = Integer.parseInt(line.substring(2).split(" ")[0]);
 							int ly = Integer.parseInt(line.substring(2).split(" ")[1]);
-							int ld = Integer.parseInt(line.substring(2).split(" ")[2]);
+							int ld = Integer.parseInt(line.substring(2).split(" ")[3]);
+							Tile tile = cWorld.getTileAt(lx, ly);
 							cLaser = new Laser(cWorld, lx, ly, ld);
+							((Rotatable)tile).setRotationDisabled(line.substring(2).split(" ")[2].equals("noRot"));
+							for (int i = 0; i < ld; i++){
+								((Rotatable)tile).rotate90();
+							}
 						} else if (line.startsWith(": ")){
 							int tx = Integer.parseInt(line.substring(2).split(" ")[0]);
 							int ty = Integer.parseInt(line.substring(2).split(" ")[1]);
@@ -65,6 +77,8 @@ public class PlayScreen extends GameScreen{
 							} else {
 								throw new RuntimeException("Tile can't be rotated");
 							}
+						} else if (line.startsWith("#")){
+							cInv = new Inventory(line);
 						} else {
 							matrix.add(line);
 						}
@@ -98,34 +112,84 @@ public class PlayScreen extends GameScreen{
 		int px = (int)((e.getX()-this.spaceX)/Tile.SIZE);
 		int py = (int)((e.getY()-this.spaceY)/Tile.SIZE);
 		if (e.getButton() == MouseButton.PRIMARY){
-			Tile before = null;
-			switch (this.selectedItem){ // TODO
+			Tile after = null;
+			final int idx = this.currentWorld.getInventory().mapIndexToType(this.selectedItem);
+			switch (idx){
+				case -1:
+					after = new Tile(px, py);
+					break;
 				case 0:
-					before = this.currentWorld.setTileAt(new Tile(px, py));
+					after = new SingleMirror(px, py);
 					break;
 				case 1:
-					before = this.currentWorld.setTileAt(new Mirror(px, py, false));
+					after = new Splitter(px, py, false);
 					break;
 				case 2:
-					before = this.currentWorld.setTileAt(new Splitter(px, py, false));
+					after = new Mirror(px, py, false);
 					break;
 				case 3:
-					before = this.currentWorld.setTileAt(new Wall(px, py));
+					after = new Checkpoint(px, py);
 					break;
 				case 4:
-					before = this.currentWorld.setTileAt(new Checkpoint(px, py));
+					after = new BlockTile(px, py);
 					break;
 				case 5:
-					before = this.currentWorld.setTileAt(new SingleMirror(px, py));
+					after = new LaserTile(px, py);
 					break;
 			}
-
+			Tile before = this.currentWorld.setTileAt(after);
 			if (before != null){
-				if (before.isPrePlaced() && before.getId() != 0){
+				if (before.isPrePlaced() && before.getId() != 0 || this.currentWorld.getInventory().getItems().getOrDefault(idx, -1) == 0){
 					this.currentWorld.setTileAt(before);
 				} else {
+					if (after instanceof LaserTile){
+						for (int x = 0; x < this.currentWorld.getWidth(); x++){
+							for (int y = 0; y < this.currentWorld.getHeight(); y++){
+								Tile tile = this.currentWorld.getTileAt(x, y);
+								if (tile != after && tile instanceof LaserTile){
+									this.currentWorld.setTileAt(new Tile(x, y));
+								}
+							}
+						}
+						this.currentLaser = new Laser(this.currentWorld, after.getX(), after.getY(), 0);
+					} else if (after instanceof SingleMirror){
+						this.currentWorld.getLights().add(new Light(after.getX(), after.getY()));
+					}
+
+					// Remove any lights that are on the same tile
+					if (!(after instanceof SingleMirror)){
+						for (int i = 0; i < this.currentWorld.getLights().size(); i++){
+							Light light = this.currentWorld.getLights().get(i);
+							if (light.getX() == after.getX() && light.getY() == after.getY()){
+								this.currentWorld.getLights().remove(i);
+								i--;
+							}
+						}
+					}
+
+					boolean laserTile = false;
+					for (int x = 0; x < this.currentWorld.getWidth(); x++){
+						for (int y = 0; y < this.currentWorld.getHeight(); y++){
+							if (this.currentWorld.getTileAt(x, y) instanceof LaserTile){
+								laserTile = true;
+							}
+						}
+					}
+					if (!laserTile) this.currentLaser = null;
+
+					updateInventory(before.getId(), 1);
+					updateInventory(after.getId(), -1);
 					this.selectedItem = -1;
 					updateWorld();
+				}
+			} else {
+				this.selectedItem = -1;
+				for (int i = 0; i < this.currentWorld.getInventory().getItems().size(); i++){
+					Rectangle2D rect = new Rectangle2D(this.width-120, 30+i*90, 80, 80); // TODO: Scale
+					if (rect.contains(e.getX(), e.getY())){
+						this.selectedItem = i;
+						break;
+					}
 				}
 			}
 		} else if (e.getButton() == MouseButton.SECONDARY){
@@ -136,9 +200,32 @@ public class PlayScreen extends GameScreen{
 			} else if (tile instanceof Rotatable){
 				if (!((Rotatable)tile).isRotationDisabled()){
 					((Rotatable)tile).rotate90();
+					if (tile instanceof LaserTile){
+						this.currentLaser.rotate90();
+					}
 					updateWorld();
 				}
 			}
+		}
+	}
+
+	private void updateInventory(int id, int inc){
+		switch (id){
+			case 1:
+				this.currentWorld.getInventory().getItems().put(2, this.currentWorld.getInventory().getItems().get(2)+inc);
+				break; // Mirror
+			case 2:
+				this.currentWorld.getInventory().getItems().put(1, this.currentWorld.getInventory().getItems().get(1)+inc);
+				break; // Splitter
+			case 3:
+				this.currentWorld.getInventory().getItems().put(3, this.currentWorld.getInventory().getItems().get(3)+inc);
+				break; // Checkpoint
+			case 4:
+				this.currentWorld.getInventory().getItems().put(0, this.currentWorld.getInventory().getItems().get(0)+inc);
+				break; // SingleMirror
+			case 6:
+				this.currentWorld.getInventory().getItems().put(5, this.currentWorld.getInventory().getItems().get(5)+inc);
+				break; // Laser
 		}
 	}
 
@@ -146,11 +233,13 @@ public class PlayScreen extends GameScreen{
 		for (Light light : this.currentWorld.getLights()){
 			light.setOn(false);
 		}
-		this.currentLaser.update();
-		if (this.currentLaser.getCheckpointsPassed() == this.currentWorld.getCheckpoints()){
-			boolean allOn = this.currentWorld.getLights().stream().map(Light::isOn).filter(b -> !b).findAny().isEmpty();
-			if (allOn){
-				System.out.println("Done");
+		if (this.currentLaser != null){
+			this.currentLaser.update();
+			if (this.currentLaser.getCheckpointsPassed() == this.currentWorld.getCheckpoints()){
+				long onLights = this.currentWorld.getLights().stream().filter(l -> l.isOn()).count();
+				if (onLights >= this.currentWorld.getInventory().getTargets()){
+					System.out.println("Done");
+				}
 			}
 		}
 	}
@@ -159,7 +248,7 @@ public class PlayScreen extends GameScreen{
 	public void update(GraphicsContext gc, double scale){
 		super.update(gc, scale);
 
-		for (int i = 1; i <= 6; i++){
+		for (int i = 1; i <= this.currentWorld.getInventory().getItems().size(); i++){
 			KeyCode keyCode = KeyCode.valueOf("DIGIT"+i);
 			if (this.keys.getOrDefault(keyCode, false)){
 				this.selectedItem = this.selectedItem == i-1 ? -1 : i-1;
@@ -173,36 +262,30 @@ public class PlayScreen extends GameScreen{
 		gc.fillRect(0, 0, this.width, this.height);
 		gc.translate(this.spaceX, this.spaceY);
 		this.currentWorld.render(gc);
-		this.currentLaser.render(gc);
+		if (this.currentLaser != null) this.currentLaser.render(gc);
 		gc.translate(-this.spaceX, -this.spaceY);
+
+		for (int i = 0; i < this.currentWorld.getInventory().getItems().size(); i++){
+			int index = this.currentWorld.getInventory().mapIndexToType(i);
+			gc.drawImage(AssetLoader.getInstance().getImage("items.png"), 1+index*34, 1, 32, 32, this.width-120, 30+i*90, 80, 80);
+			gc.setFont(FONT);
+			gc.setTextAlign(TextAlignment.LEFT);
+			gc.setFill(Color.BLACK);
+			gc.fillText(Integer.toString(this.currentWorld.getInventory().getItems().get(index)), this.width-120-25, 30+i*90+40);
+		}
+
+		gc.setFont(FONT);
+		gc.setFill(Color.BLACK);
+		gc.setTextAlign(TextAlignment.CENTER);
+		gc.fillText("Number of targets: "+this.currentWorld.getInventory().getTargets(), this.width/2, 50);
 		gc.restore();
 
 		// Render the selected tool
 		if (this.selectedItem != -1){
 			gc.save();
 			gc.setGlobalAlpha(0.6);
-			Image image = null;
-			switch (this.selectedItem){ // TODO: Improve
-				case 0:
-					image = AssetLoader.getInstance().getImage("tile.png");
-					break;
-				case 1:
-					image = AssetLoader.getInstance().getImage("tile.png");
-					break;
-				case 2:
-					image = AssetLoader.getInstance().getImage("tile.png");
-					break;
-				case 3:
-					image = AssetLoader.getInstance().getImage("tile.png");
-					break;
-				case 4:
-					image = AssetLoader.getInstance().getImage("tile.png");
-					break;
-				case 5:
-					image = AssetLoader.getInstance().getImage("tile.png");
-					break;
-			}
-			gc.drawImage(image, this.mouseX, this.mouseY, Tile.SIZE, Tile.SIZE);
+			int index = this.currentWorld.getInventory().mapIndexToType(this.selectedItem);
+			gc.drawImage(AssetLoader.getInstance().getImage("items.png"), 1+index*34, 1, 32, 32, this.mouseX, this.mouseY, Tile.SIZE, Tile.SIZE);
 			gc.restore();
 		}
 	}

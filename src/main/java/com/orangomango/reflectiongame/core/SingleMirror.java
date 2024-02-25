@@ -11,19 +11,20 @@ public class SingleMirror extends Tile implements Rotatable{
 
 	public SingleMirror(int x, int y){
 		super(x, y);
+		this.id = 4;
 	}
 
 	@Override
 	public int updateDirection(int dir){
 		switch (this.rotation){
 			case 0:
-				return dir == Util.DIRECTION_N ? Util.DIRECTION_E : (dir == Util.DIRECTION_W ? Util.DIRECTION_S : -1);
-			case 1:
-				return dir == Util.DIRECTION_N ? Util.DIRECTION_W : (dir == Util.DIRECTION_E ? Util.DIRECTION_S : -1);
-			case 2:
-				return dir == Util.DIRECTION_S ? Util.DIRECTION_W : (dir == Util.DIRECTION_E ? Util.DIRECTION_N : -1);
-			case 3:
 				return dir == Util.DIRECTION_S ? Util.DIRECTION_E : (dir == Util.DIRECTION_W ? Util.DIRECTION_N : -1);
+			case 1:
+				return dir == Util.DIRECTION_N ? Util.DIRECTION_E : (dir == Util.DIRECTION_W ? Util.DIRECTION_S : -1);
+			case 2:
+				return dir == Util.DIRECTION_N ? Util.DIRECTION_W : (dir == Util.DIRECTION_E ? Util.DIRECTION_S : -1);
+			case 3:
+				return dir == Util.DIRECTION_S ? Util.DIRECTION_W : (dir == Util.DIRECTION_E ? Util.DIRECTION_N : -1);
 			default:
 				return -1;
 		}

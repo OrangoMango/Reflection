@@ -8,6 +8,7 @@ import com.orangomango.reflectiongame.Util;
 public class Splitter extends Mirror{
 	public Splitter(int x, int y, boolean f){
 		super(x, y, f);
+		this.id = 2;
 	}
 
 	@Override
