@@ -115,6 +115,7 @@ public class PlayScreen extends GameScreen{
 
 	@Override
 	public void handleMouseMovement(MouseEvent e){
+		if (this.levelCompleted) return;
 		this.mouseX = e.getX();
 		this.mouseY = e.getY();
 		int px = (int)((e.getX()-this.spaceX)/Tile.SIZE);
@@ -136,6 +137,7 @@ public class PlayScreen extends GameScreen{
 
 	@Override
 	public void handleMouseInput(MouseEvent e){
+		if (this.levelCompleted) return;
 		int px = (int)((e.getX()-this.spaceX)/Tile.SIZE);
 		int py = (int)((e.getY()-this.spaceY)/Tile.SIZE);
 		if (e.getButton() == MouseButton.PRIMARY){
@@ -267,8 +269,7 @@ public class PlayScreen extends GameScreen{
 			if (this.currentLaser.getCheckpointsPassed() == this.currentWorld.getCheckpoints()){
 				long onLights = this.currentWorld.getLights().stream().filter(l -> l.isOn()).count();
 				if (onLights >= this.currentWorld.getInventory().getTargets() && !this.levelCompleted){
-					System.out.println("Level completed");
-					Util.schedule(() -> this.levelCompleted = true, 800);
+					this.levelCompleted = true;
 				}
 			}
 		}
@@ -319,16 +320,21 @@ public class PlayScreen extends GameScreen{
 		if (this.selectedItem != -1){
 			gc.save();
 			gc.setGlobalAlpha(0.6);
-			int index = this.currentWorld.getInventory().mapIndexToType(this.selectedItem);
+			final int index = this.currentWorld.getInventory().mapIndexToType(this.selectedItem);
 			gc.drawImage(AssetLoader.getInstance().getImage("items.png"), 1+index*34, 1, 32, 32, this.mouseX, this.mouseY, Tile.SIZE, Tile.SIZE);
 			gc.restore();
 		}
 
 		if (this.levelCompleted){
 			if (this.keys.getOrDefault(KeyCode.SPACE, false)){
-				this.currentLevel = (this.currentLevel+1) % this.worlds.size();
-				loadWorld(this.currentLevel);
-				this.levelCompleted = false;
+				this.currentLevel++;
+				if (this.currentLevel >= this.worlds.size()){
+					SCREEN_SWITCHER.accept(new HomeScreen(this.width, this.height, this.keys));
+				} else {
+					loadWorld(this.currentLevel);
+					this.levelCompleted = false;
+					this.selectedItem = -1;
+				}
 				this.keys.put(KeyCode.SPACE, false);
 			}
 

@@ -8,7 +8,7 @@ public class Util{
 	public static final int DIRECTION_S = 2;
 	public static final int DIRECTION_W = 3;
 
-	public static void schedule(Runnable r, int delay){
+	/*public static void schedule(Runnable r, int delay){
 		new Thread(() -> {
 			try {
 				Thread.sleep(delay);
@@ -17,7 +17,7 @@ public class Util{
 				ex.printStackTrace();
 			}
 		}).start();
-	}
+	}*/
 
 	public static Point2D reducePoint(Point2D point, int dir){
 		switch (dir){
