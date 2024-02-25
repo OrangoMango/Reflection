@@ -27,6 +27,8 @@ public class PlayScreen extends GameScreen{
 	private int selectedItem = -1;
 	private double spaceX, spaceY;
 	private ArrayList<Pair<World, Laser>> worlds = new ArrayList<>();
+	private int currentLevel = 0;
+	private boolean levelCompleted;
 
 	private static final Font FONT = Font.loadFont(PlayScreen.class.getResourceAsStream("/misc/font.ttf"), 40);
 
@@ -50,19 +52,24 @@ public class PlayScreen extends GameScreen{
 						lights.clear();
 					} else {
 						if (line.startsWith(". ")){
+							// Pretty useless
 							int lx = Integer.parseInt(line.substring(2).split(" ")[0]);
 							int ly = Integer.parseInt(line.substring(2).split(" ")[1]);
 							lights.add(new Light(lx, ly));
 						} else if (line.startsWith("- ")){
 							cWorld = new World(matrix, new ArrayList<>(lights), cInv);
-							int lx = Integer.parseInt(line.substring(2).split(" ")[0]);
-							int ly = Integer.parseInt(line.substring(2).split(" ")[1]);
-							int ld = Integer.parseInt(line.substring(2).split(" ")[3]);
-							Tile tile = cWorld.getTileAt(lx, ly);
-							cLaser = new Laser(cWorld, lx, ly, ld);
-							((Rotatable)tile).setRotationDisabled(line.substring(2).split(" ")[2].equals("noRot"));
-							for (int i = 0; i < ld; i++){
-								((Rotatable)tile).rotate90();
+							if (line.length() > 2){
+								int lx = Integer.parseInt(line.substring(2).split(" ")[0]);
+								int ly = Integer.parseInt(line.substring(2).split(" ")[1]);
+								int ld = Integer.parseInt(line.substring(2).split(" ")[3]);
+								Tile tile = cWorld.getTileAt(lx, ly);
+								cLaser = new Laser(cWorld, lx, ly, ld);
+								((Rotatable)tile).setRotationDisabled(line.substring(2).split(" ")[2].equals("noRot"));
+								for (int i = 0; i < ld; i++){
+									((Rotatable)tile).rotate90();
+								}
+							} else {
+								cLaser = null;
 							}
 						} else if (line.startsWith(": ")){
 							int tx = Integer.parseInt(line.substring(2).split(" ")[0]);
@@ -74,8 +81,13 @@ public class PlayScreen extends GameScreen{
 								for (int i = 0; i < am; i++){
 									((Rotatable)tile).rotate90();
 								}
+							} else if (tile instanceof Flippable){
+								((Flippable)tile).setFlippingDisabled(line.substring(2).split(" ")[2].equals("noFlip"));
+								if (line.substring(2).split(" ")[3].equals("flip")){
+									((Flippable)tile).flip();
+								}
 							} else {
-								throw new RuntimeException("Tile can't be rotated");
+								throw new RuntimeException("Tile can't be rotated/flipped");
 							}
 						} else if (line.startsWith("#")){
 							cInv = new Inventory(line);
@@ -90,13 +102,13 @@ public class PlayScreen extends GameScreen{
 			ex.printStackTrace();
 		}
 
-		loadWorld(0);
+		loadWorld(this.currentLevel);
 	}
 
 	private void loadWorld(int index){
 		this.currentWorld = this.worlds.get(index).getKey();
 		this.currentLaser = this.worlds.get(index).getValue();
-		this.spaceX = 100;
+		this.spaceX = 65;
 		this.spaceY = (this.height-this.currentWorld.getHeight()*Tile.SIZE)/2;
 		updateWorld();
 	}
@@ -105,6 +117,21 @@ public class PlayScreen extends GameScreen{
 	public void handleMouseMovement(MouseEvent e){
 		this.mouseX = e.getX();
 		this.mouseY = e.getY();
+		int px = (int)((e.getX()-this.spaceX)/Tile.SIZE);
+		int py = (int)((e.getY()-this.spaceY)/Tile.SIZE);
+		Tile tile = this.currentWorld.getTileAt(px, py);
+		for (int x = 0; x < this.currentWorld.getWidth(); x++){
+			for (int y = 0; y < this.currentWorld.getHeight(); y++){
+				this.currentWorld.getTileAt(x, y).setShowArrow(false);
+			}
+		}
+		if (tile != null){
+			if (tile instanceof Flippable){
+				tile.setShowArrow(!((Flippable)tile).isFlippingDisabled());
+			} else if (tile instanceof Rotatable){
+				tile.setShowArrow(!((Rotatable)tile).isRotationDisabled());
+			}
+		}
 	}
 
 	@Override
@@ -195,8 +222,10 @@ public class PlayScreen extends GameScreen{
 		} else if (e.getButton() == MouseButton.SECONDARY){
 			Tile tile = this.currentWorld.getTileAt(px, py);
 			if (tile instanceof Flippable){
-				((Flippable)tile).flip();
-				updateWorld();
+				if (!((Flippable)tile).isFlippingDisabled()){
+					((Flippable)tile).flip();
+					updateWorld();
+				}
 			} else if (tile instanceof Rotatable){
 				if (!((Rotatable)tile).isRotationDisabled()){
 					((Rotatable)tile).rotate90();
@@ -237,8 +266,9 @@ public class PlayScreen extends GameScreen{
 			this.currentLaser.update();
 			if (this.currentLaser.getCheckpointsPassed() == this.currentWorld.getCheckpoints()){
 				long onLights = this.currentWorld.getLights().stream().filter(l -> l.isOn()).count();
-				if (onLights >= this.currentWorld.getInventory().getTargets()){
-					System.out.println("Done");
+				if (onLights >= this.currentWorld.getInventory().getTargets() && !this.levelCompleted){
+					System.out.println("Level completed");
+					Util.schedule(() -> this.levelCompleted = true, 800);
 				}
 			}
 		}
@@ -256,10 +286,15 @@ public class PlayScreen extends GameScreen{
 			}
 		}
 
+		// Skip the level
+		if (this.keys.getOrDefault(KeyCode.N, false)){
+			this.levelCompleted = true;
+			this.keys.put(KeyCode.N, false);
+		}
+
 		gc.save();
 		gc.scale(scale, scale);
-		gc.setFill(Color.CYAN);
-		gc.fillRect(0, 0, this.width, this.height);
+		gc.drawImage(AssetLoader.getInstance().getImage("background.jpg"), 0, 0, this.width, this.height);
 		gc.translate(this.spaceX, this.spaceY);
 		this.currentWorld.render(gc);
 		if (this.currentLaser != null) this.currentLaser.render(gc);
@@ -277,7 +312,7 @@ public class PlayScreen extends GameScreen{
 		gc.setFont(FONT);
 		gc.setFill(Color.BLACK);
 		gc.setTextAlign(TextAlignment.CENTER);
-		gc.fillText("Number of targets: "+this.currentWorld.getInventory().getTargets(), this.width/2, 50);
+		gc.fillText(this.currentLevel+". Number of targets: "+this.currentWorld.getLights().stream().filter(l -> l.isOn()).count()+"/"+this.currentWorld.getInventory().getTargets(), this.width/2, 50);
 		gc.restore();
 
 		// Render the selected tool
@@ -286,6 +321,25 @@ public class PlayScreen extends GameScreen{
 			gc.setGlobalAlpha(0.6);
 			int index = this.currentWorld.getInventory().mapIndexToType(this.selectedItem);
 			gc.drawImage(AssetLoader.getInstance().getImage("items.png"), 1+index*34, 1, 32, 32, this.mouseX, this.mouseY, Tile.SIZE, Tile.SIZE);
+			gc.restore();
+		}
+
+		if (this.levelCompleted){
+			if (this.keys.getOrDefault(KeyCode.SPACE, false)){
+				this.currentLevel = (this.currentLevel+1) % this.worlds.size();
+				loadWorld(this.currentLevel);
+				this.levelCompleted = false;
+				this.keys.put(KeyCode.SPACE, false);
+			}
+
+			gc.save();
+			gc.setGlobalAlpha(0.8);
+			gc.setFill(Color.BLACK);
+			gc.fillRect(0, 0, this.width, this.height);
+			gc.setFill(Color.WHITE);
+			gc.setFont(FONT);
+			gc.setTextAlign(TextAlignment.CENTER);
+			gc.fillText("Level completed!\nPress space to continue", this.width/2.0, this.height/2.0);
 			gc.restore();
 		}
 	}

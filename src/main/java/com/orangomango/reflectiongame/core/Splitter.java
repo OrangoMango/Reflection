@@ -19,6 +19,6 @@ public class Splitter extends Mirror{
 	@Override
 	public void render(GraphicsContext gc){
 		final int index = this.flipped ? 1 : 0;
-		gc.drawImage(AssetLoader.getInstance().getImage("splitter.png"), 1+index*34, 1, 32, 32, this.x*SIZE, this.y*SIZE, SIZE, SIZE);
+		gc.drawImage(AssetLoader.getInstance().getImage("splitter.png"), 1+index*66, 1, 64, 64, this.x*SIZE, this.y*SIZE, SIZE, SIZE);
 	}
 }

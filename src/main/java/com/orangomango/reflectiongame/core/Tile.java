@@ -8,8 +8,9 @@ public class Tile{
 	protected int x, y;
 	private boolean prePlaced;
 	protected int id;
+	private boolean showArrow;
 
-	public static final double SIZE = 80;
+	public static final double SIZE = 64;
 
 	public Tile(int x, int y){
 		this.x = x;
@@ -46,5 +47,13 @@ public class Tile{
 
 	public boolean isPrePlaced(){
 		return this.prePlaced;
+	}
+
+	public void setShowArrow(boolean value){
+		this.showArrow = value;
+	}
+
+	public boolean isShowArrow(){
+		return this.showArrow;
 	}
 }

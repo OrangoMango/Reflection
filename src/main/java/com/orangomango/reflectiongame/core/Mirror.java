@@ -7,6 +7,7 @@ import com.orangomango.reflectiongame.Util;
 
 public class Mirror extends Tile implements Flippable{
 	protected boolean flipped;
+	private boolean flipDisabled;
 
 	public Mirror(int x, int y, boolean f){
 		super(x, y);
@@ -38,6 +39,16 @@ public class Mirror extends Tile implements Flippable{
 	@Override
 	public void render(GraphicsContext gc){
 		final int index = this.flipped ? 1 : 0;
-		gc.drawImage(AssetLoader.getInstance().getImage("mirror.png"), 1+index*34, 1, 32, 32, this.x*SIZE, this.y*SIZE, SIZE, SIZE);
+		gc.drawImage(AssetLoader.getInstance().getImage("mirror.png"), 1+index*66, 1, 64, 64, this.x*SIZE, this.y*SIZE, SIZE, SIZE);
+	}
+
+	@Override
+	public void setFlippingDisabled(boolean value){
+		this.flipDisabled = value;
+	}
+
+	@Override
+	public boolean isFlippingDisabled(){
+		return this.flipDisabled;
 	}
 }

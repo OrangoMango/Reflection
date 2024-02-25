@@ -5,6 +5,7 @@ import javafx.scene.canvas.GraphicsContext;
 import java.util.ArrayList;
 
 import com.orangomango.reflectiongame.core.inventory.Inventory;
+import com.orangomango.reflectiongame.AssetLoader;
 
 public class World{
 	private int width, height;
@@ -31,13 +32,13 @@ public class World{
 						this.map[x][y] = new Mirror(x, y, false);
 						break;
 					case 2:
-						this.map[x][y] = new Mirror(x, y, true);
+						this.map[x][y] = new Mirror(x, y, true); // Useless
 						break;
 					case 3:
 						this.map[x][y] = new Splitter(x, y, false);
 						break;
 					case 4:
-						this.map[x][y] = new Splitter(x, y, true);
+						this.map[x][y] = new Splitter(x, y, true); // Useless
 						break;
 					case 5:
 						this.map[x][y] = new Checkpoint(x, y);
@@ -45,6 +46,7 @@ public class World{
 						break;
 					case 6:
 						this.map[x][y] = new SingleMirror(x, y);
+						this.lights.add(new Light(x, y));
 						break;
 					case 7:
 						this.map[x][y] = new BlockTile(x, y);
@@ -65,6 +67,12 @@ public class World{
 			for (int y = 0; y < this.height; y++){
 				Tile tile = this.map[x][y];
 				tile.render(gc);
+				if (tile.isShowArrow()){
+					gc.save();
+					gc.setGlobalAlpha(0.9);
+					gc.drawImage(AssetLoader.getInstance().getImage("arrow.png"), tile.getX()*Tile.SIZE, tile.getY()*Tile.SIZE, Tile.SIZE, Tile.SIZE);
+					gc.restore();
+				}
 			}
 		}
 

@@ -32,7 +32,7 @@ public class SingleMirror extends Tile implements Rotatable{
 
 	@Override
 	public void render(GraphicsContext gc){
-		gc.drawImage(AssetLoader.getInstance().getImage("singlemirror.png"), 1+getRotation()*34, 1, 32, 32, this.x*SIZE, this.y*SIZE, SIZE, SIZE);
+		gc.drawImage(AssetLoader.getInstance().getImage("singlemirror.png"), 1+getRotation()*66, 1, 64, 64, this.x*SIZE, this.y*SIZE, SIZE, SIZE);
 	}
 
 	@Override

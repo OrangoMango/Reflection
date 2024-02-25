@@ -47,14 +47,14 @@ public class Laser{
 
 				if (tile instanceof Checkpoint){
 					if (((Checkpoint)tile).laserPassed(dir)){
-						this.checkpointsPassed++;
+						this.checkpointsPassed++; // TODO: Change checkpoint texture to turned on
 					}
 				}
 			}
 		} while (this.world.containsPoint(cx, cy) && dir != -1 && this.points.size() < 25);
 
 		Point2D lastPoint = this.points.get(this.points.size()-1);
-		this.points.remove(lastPoint);
+		this.points.remove(this.points.size()-1);
 		this.points.add(Util.reducePoint(lastPoint, dir == -1 ? lastDir : dir));
 
 		for (Light light : this.world.getLights()){
@@ -82,7 +82,8 @@ public class Laser{
 
 	public void render(GraphicsContext gc){
 		gc.setFill(Color.RED);
-		gc.fillOval(this.x*Tile.SIZE+Tile.SIZE/3, this.y*Tile.SIZE+Tile.SIZE/3, Tile.SIZE/3, Tile.SIZE/3);
+		final double size = Tile.SIZE/5;
+		gc.fillOval(this.x*Tile.SIZE+(Tile.SIZE-size)/2, this.y*Tile.SIZE+(Tile.SIZE-size)/2, size, size);
 
 		// Render the laser
 		renderLaser(gc);

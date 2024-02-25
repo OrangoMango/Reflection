@@ -1,8 +1,8 @@
 package com.orangomango.reflectiongame.core;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 
+import com.orangomango.reflectiongame.AssetLoader;
 import com.orangomango.reflectiongame.Util;
 
 public class Light{
@@ -15,13 +15,12 @@ public class Light{
 	}
 
 	public void render(GraphicsContext gc, Rotatable tile){
-		gc.setFill(this.on ? Color.GREEN : Color.RED);
 		int[] dir = tile == null ? null : Util.getDirection(getDirection(tile.getRotation()));
 		gc.save();
 		gc.translate(this.x*Tile.SIZE+Tile.SIZE/2, this.y*Tile.SIZE+Tile.SIZE/2);
 		if (dir != null) gc.translate(Tile.SIZE/3*dir[0], Tile.SIZE/3*dir[1]);
 		final double size = Tile.SIZE/4;
-		gc.fillOval(-size/2, -size/2, size, size);
+		gc.drawImage(AssetLoader.getInstance().getImage("light.png"), this.on ? 1 : 19, 1, 16, 16, -size/2, -size/2, size, size);
 		gc.restore();
 	}
 
