@@ -4,6 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.geometry.Rectangle2D;
 
 import com.orangomango.reflectiongame.AssetLoader;
+import com.orangomango.reflectiongame.Util;
 
 public class UiButton{
 	private String imageName;
@@ -22,6 +23,7 @@ public class UiButton{
 	public void click(double mx, double my){
 		Rectangle2D rect = new Rectangle2D(this.x, this.y, this.width, this.height);
 		if (rect.contains(mx, my)){
+			Util.playSound("button_click.wav");
 			this.onClick.run();
 		}
 	}

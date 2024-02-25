@@ -170,6 +170,7 @@ public class PlayScreen extends GameScreen{
 			if (before != null){
 				if (before.isPrePlaced() && before.getId() != 0 || this.currentWorld.getInventory().getItems().getOrDefault(idx, -1) == 0){
 					this.currentWorld.setTileAt(before);
+					Util.playSound("invalid.wav");
 				} else {
 					if (after instanceof LaserTile){
 						for (int x = 0; x < this.currentWorld.getWidth(); x++){
@@ -209,6 +210,7 @@ public class PlayScreen extends GameScreen{
 					updateInventory(before.getId(), 1);
 					updateInventory(after.getId(), -1);
 					this.selectedItem = -1;
+					Util.playSound("tile_placed.wav");
 					updateWorld();
 				}
 			} else {
@@ -217,6 +219,7 @@ public class PlayScreen extends GameScreen{
 					Rectangle2D rect = new Rectangle2D(this.width-120, 30+i*90, 80, 80); // TODO: Scale
 					if (rect.contains(e.getX(), e.getY())){
 						this.selectedItem = i;
+						Util.playSound("button_click.wav");
 						break;
 					}
 				}
@@ -226,6 +229,7 @@ public class PlayScreen extends GameScreen{
 			if (tile instanceof Flippable){
 				if (!((Flippable)tile).isFlippingDisabled()){
 					((Flippable)tile).flip();
+					Util.playSound("tile_used.wav");
 					updateWorld();
 				}
 			} else if (tile instanceof Rotatable){
@@ -234,6 +238,7 @@ public class PlayScreen extends GameScreen{
 					if (tile instanceof LaserTile){
 						this.currentLaser.rotate90();
 					}
+					Util.playSound("tile_used.wav");
 					updateWorld();
 				}
 			}
@@ -270,6 +275,7 @@ public class PlayScreen extends GameScreen{
 				long onLights = this.currentWorld.getLights().stream().filter(l -> l.isOn()).count();
 				if (onLights >= this.currentWorld.getInventory().getTargets() && !this.levelCompleted){
 					this.levelCompleted = true;
+					Util.playSound("level_completed.wav");
 				}
 			}
 		}
@@ -290,6 +296,7 @@ public class PlayScreen extends GameScreen{
 		// Skip the level
 		if (this.keys.getOrDefault(KeyCode.N, false)){
 			this.levelCompleted = true;
+			Util.playSound("level_completed.wav");
 			this.keys.put(KeyCode.N, false);
 		}
 

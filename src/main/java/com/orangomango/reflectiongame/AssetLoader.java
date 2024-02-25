@@ -31,6 +31,7 @@ public class AssetLoader{
 			while ((line = reader.readLine()) != null){
 				if (line.isBlank()){
 					loadingMode++;
+					continue;
 				}
 
 				switch (loadingMode){

@@ -19,6 +19,10 @@ public class Util{
 		}).start();
 	}*/
 
+	public static void playSound(String name){
+		AssetLoader.getInstance().getAudio(name).play();
+	}
+
 	public static Point2D reducePoint(Point2D point, int dir){
 		switch (dir){
 			case DIRECTION_N:

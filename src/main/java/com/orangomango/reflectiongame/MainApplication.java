@@ -8,6 +8,7 @@ import javafx.scene.canvas.*;
 import javafx.animation.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
+import javafx.scene.media.MediaPlayer;
 
 import java.util.HashMap;
 
@@ -17,6 +18,7 @@ public class MainApplication extends Application{
 	private GameScreen currentScreen;
 	private HashMap<KeyCode, Boolean> keys = new HashMap<>();
 	private int fps, frames;
+	private MediaPlayer player;
 
 	private static final int WIDTH = 800;
 	private static final int HEIGHT = 600;
@@ -26,6 +28,9 @@ public class MainApplication extends Application{
 	public void start(Stage stage){
 		GameScreen.SCREEN_SWITCHER = screen -> this.currentScreen = screen;
 		this.currentScreen = new HomeScreen(WIDTH, HEIGHT, this.keys);
+		this.player = new MediaPlayer(AssetLoader.getInstance().getMusic("background.wav"));
+		this.player.setCycleCount(MediaPlayer.INDEFINITE);
+		this.player.play();
 
 		Thread frameCounter = new Thread(() -> {
 			while (true){

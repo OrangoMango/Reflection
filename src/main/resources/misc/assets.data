@@ -11,3 +11,11 @@
 /images/button_credits.png
 /images/background.jpg
 /images/arrow.png
+
+/audio/button_click.wav
+/audio/level_completed.wav
+/audio/tile_placed.wav
+/audio/tile_used.wav
+/audio/invalid.wav
+
+/audio/background.wav
