@@ -304,7 +304,7 @@ public class PlayScreen extends GameScreen{
 		// Skip the level
 		if (this.keys.getOrDefault(KeyCode.N, false)){
 			this.levelCompleted = true;
-			Util.playSound("level_completed.wav");
+			Util.playSound("invalid.wav");
 			this.keys.put(KeyCode.N, false);
 		}
 

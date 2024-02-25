@@ -8,17 +8,6 @@ public class Util{
 	public static final int DIRECTION_S = 2;
 	public static final int DIRECTION_W = 3;
 
-	/*public static void schedule(Runnable r, int delay){
-		new Thread(() -> {
-			try {
-				Thread.sleep(delay);
-				r.run();
-			} catch (InterruptedException ex){
-				ex.printStackTrace();
-			}
-		}).start();
-	}*/
-
 	public static void playSound(String name){
 		AssetLoader.getInstance().getAudio(name).play();
 	}
