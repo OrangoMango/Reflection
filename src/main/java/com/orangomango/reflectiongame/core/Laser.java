@@ -47,7 +47,8 @@ public class Laser{
 
 				if (tile instanceof Checkpoint){
 					if (((Checkpoint)tile).laserPassed(dir)){
-						this.checkpointsPassed++; // TODO: Change checkpoint texture to turned on
+						this.checkpointsPassed++;
+						((Checkpoint)tile).setActivated(true);
 					}
 				}
 			}

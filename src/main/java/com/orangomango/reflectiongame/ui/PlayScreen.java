@@ -269,6 +269,14 @@ public class PlayScreen extends GameScreen{
 		for (Light light : this.currentWorld.getLights()){
 			light.setOn(false);
 		}
+		for (int x = 0; x < this.currentWorld.getWidth(); x++){
+			for (int y = 0; y < this.currentWorld.getHeight(); y++){
+				Tile tile = this.currentWorld.getTileAt(x, y);
+				if (tile instanceof Checkpoint){
+					((Checkpoint)tile).setActivated(false);
+				}
+			}
+		}
 		if (this.currentLaser != null){
 			this.currentLaser.update();
 			if (this.currentLaser.getCheckpointsPassed() == this.currentWorld.getCheckpoints()){

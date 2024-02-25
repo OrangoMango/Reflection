@@ -72,6 +72,7 @@ public class MainApplication extends Application{
 
 		stage.setTitle("Reflection");
 		stage.setResizable(false);
+		stage.getIcons().add(AssetLoader.getInstance().getImage("icon.png"));
 		stage.show();
 	}
 

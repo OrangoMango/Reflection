@@ -2,6 +2,7 @@
 /images/mirror.png
 /images/splitter.png
 /images/checkpoint.png
+/images/checkpoint_on.png
 /images/singlemirror.png
 /images/blocktile.png
 /images/lasertile.png
@@ -11,6 +12,7 @@
 /images/button_credits.png
 /images/background.jpg
 /images/arrow.png
+/images/icon.png
 
 /audio/button_click.wav
 /audio/level_completed.wav
