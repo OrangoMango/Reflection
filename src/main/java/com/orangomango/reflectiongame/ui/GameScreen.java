@@ -28,8 +28,6 @@ public abstract class GameScreen{
 	}
 	
 	public void update(GraphicsContext gc, double scale){
-		gc.clearRect(0, 0, this.width, this.height);
-
 		if (this.keys.getOrDefault(KeyCode.ESCAPE, false)){
 			SCREEN_SWITCHER.accept(new HomeScreen(this.width, this.height, this.keys)); // Return to home screen
 		}

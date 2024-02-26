@@ -80,6 +80,7 @@ public class MainApplication extends Application{
 	}
 
 	private void update(GraphicsContext gc){
+		gc.clearRect(0, 0, WIDTH, HEIGHT);
 		gc.translate(OFFSET_X, 0);
 		this.currentScreen.update(gc, SCALE);
 		gc.translate(-OFFSET_X, 0);
