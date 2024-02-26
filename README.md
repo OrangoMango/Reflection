@@ -6,7 +6,7 @@ Light up all the required targets by passing also through the checkpoints
 
 # Instructions
 * Left click on an item from the inventory on the right and then click on an empty tile to place it there
-* Right click on the tiles marked with an arrow to rotate them by 90 degrees
+* Right click on the tiles marked with an arrow (hover on them) to rotate them by 90 degrees
 * **Use the `N` key to to skip the current level (if it's too difficult for you)**
 * Use the `ESCAPE` key to return to the home screen
 * When no tile is selected, click on a tile of the world to move it to your inventory
