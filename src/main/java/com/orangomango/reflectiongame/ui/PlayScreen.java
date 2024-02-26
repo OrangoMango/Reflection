@@ -114,12 +114,12 @@ public class PlayScreen extends GameScreen{
 	}
 
 	@Override
-	public void handleMouseMovement(MouseEvent e){
+	public void handleMouseMovement(MouseEvent e, double scale, double offsetX){
 		if (this.levelCompleted) return;
-		this.mouseX = e.getX();
-		this.mouseY = e.getY();
-		int px = (int)((e.getX()-this.spaceX)/Tile.SIZE);
-		int py = (int)((e.getY()-this.spaceY)/Tile.SIZE);
+		this.mouseX = (e.getX()-offsetX)/scale;
+		this.mouseY = e.getY()/scale;
+		int px = (int)((this.mouseX-this.spaceX)/Tile.SIZE);
+		int py = (int)((this.mouseY-this.spaceY)/Tile.SIZE);
 		Tile tile = this.currentWorld.getTileAt(px, py);
 		for (int x = 0; x < this.currentWorld.getWidth(); x++){
 			for (int y = 0; y < this.currentWorld.getHeight(); y++){
@@ -136,10 +136,10 @@ public class PlayScreen extends GameScreen{
 	}
 
 	@Override
-	public void handleMouseInput(MouseEvent e){
+	public void handleMouseInput(MouseEvent e, double scale, double offsetX){
 		if (this.levelCompleted) return;
-		int px = (int)((e.getX()-this.spaceX)/Tile.SIZE);
-		int py = (int)((e.getY()-this.spaceY)/Tile.SIZE);
+		int px = (int)(((e.getX()-offsetX)/scale-this.spaceX)/Tile.SIZE);
+		int py = (int)((e.getY()/scale-this.spaceY)/Tile.SIZE);
 		if (e.getButton() == MouseButton.PRIMARY){
 			Tile after = null;
 			final int idx = this.currentWorld.getInventory().mapIndexToType(this.selectedItem);
@@ -159,10 +159,7 @@ public class PlayScreen extends GameScreen{
 				case 3:
 					after = new Checkpoint(px, py);
 					break;
-				case 4:
-					after = new BlockTile(px, py);
-					break;
-				case 5:
+				case 5: // TODO: Change 5 to 4
 					after = new LaserTile(px, py);
 					break;
 			}
@@ -217,7 +214,7 @@ public class PlayScreen extends GameScreen{
 				this.selectedItem = -1;
 				for (int i = 0; i < this.currentWorld.getInventory().getItems().size(); i++){
 					Rectangle2D rect = new Rectangle2D(this.width-120, 30+i*90, 80, 80); // TODO: Scale
-					if (rect.contains(e.getX(), e.getY())){
+					if (rect.contains((e.getX()-offsetX)/scale, e.getY()/scale)){
 						this.selectedItem = i;
 						Util.playSound("button_click.wav");
 						break;
@@ -329,7 +326,6 @@ public class PlayScreen extends GameScreen{
 		gc.setFill(Color.BLACK);
 		gc.setTextAlign(TextAlignment.CENTER);
 		gc.fillText(this.currentLevel+". Number of targets: "+this.currentWorld.getLights().stream().filter(l -> l.isOn()).count()+"/"+this.currentWorld.getInventory().getTargets(), this.width/2, 50);
-		gc.restore();
 
 		// Render the selected tool
 		if (this.selectedItem != -1){
@@ -363,5 +359,7 @@ public class PlayScreen extends GameScreen{
 			gc.fillText("Level completed!\nPress space to continue", this.width/2.0, this.height/2.0);
 			gc.restore();
 		}
+
+		gc.restore();
 	}
 }

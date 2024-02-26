@@ -22,7 +22,10 @@ public class MainApplication extends Application{
 
 	private static final int WIDTH = 800;
 	private static final int HEIGHT = 600;
-	private static final double SCALE = 1;
+	private static final int WINDOW_WIDTH = 800;
+	private static final int WINDOW_HEIGHT = 600;
+	private static final double SCALE = (double)WINDOW_HEIGHT/HEIGHT;
+	private static final double OFFSET_X = (WINDOW_WIDTH-WIDTH*SCALE)/2;
 
 	@Override
 	public void start(Stage stage){
@@ -47,15 +50,15 @@ public class MainApplication extends Application{
 		frameCounter.start();
 
 		StackPane pane = new StackPane();
-		Canvas canvas = new Canvas(WIDTH, HEIGHT);
+		Canvas canvas = new Canvas(WINDOW_WIDTH, WINDOW_HEIGHT);
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		pane.getChildren().add(canvas);
 
 		canvas.setFocusTraversable(true);
 		canvas.setOnKeyPressed(e -> this.keys.put(e.getCode(), true));
 		canvas.setOnKeyReleased(e -> this.keys.put(e.getCode(), false));
-		canvas.setOnMousePressed(e -> this.currentScreen.handleMouseInput(e)); // TODO: Fix scale
-		canvas.setOnMouseMoved(e -> this.currentScreen.handleMouseMovement(e));
+		canvas.setOnMousePressed(e -> this.currentScreen.handleMouseInput(e, SCALE, OFFSET_X));
+		canvas.setOnMouseMoved(e -> this.currentScreen.handleMouseMovement(e, SCALE, OFFSET_X));
 
 		AnimationTimer loop = new AnimationTimer(){
 			@Override
@@ -66,7 +69,7 @@ public class MainApplication extends Application{
 		};
 		loop.start();
 
-		Scene scene = new Scene(pane, WIDTH, HEIGHT);
+		Scene scene = new Scene(pane, WINDOW_WIDTH, WINDOW_HEIGHT);
 		scene.setFill(Color.BLACK);
 		stage.setScene(scene);
 
@@ -77,7 +80,9 @@ public class MainApplication extends Application{
 	}
 
 	private void update(GraphicsContext gc){
+		gc.translate(OFFSET_X, 0);
 		this.currentScreen.update(gc, SCALE);
+		gc.translate(-OFFSET_X, 0);
 
 		// Display FPS
 		gc.setFill(Color.WHITE);

@@ -19,11 +19,11 @@ public abstract class GameScreen{
 		this.keys = keys;
 	}
 
-	public void handleMouseInput(MouseEvent event){
+	public void handleMouseInput(MouseEvent e, double scale, double offsetX){
 		// Do nothing
 	}
 
-	public void handleMouseMovement(MouseEvent e){
+	public void handleMouseMovement(MouseEvent e, double scale, double offsetX){
 		// Do nothing
 	}
 	
