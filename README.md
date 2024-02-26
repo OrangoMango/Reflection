@@ -1,5 +1,6 @@
 # Reflection
-A laser maze game. Can you beat all of the current 25 levels?
+A laser maze game. Can you beat all of the current 25 levels?  
+*Download it or play it in the browser: https://orangomango.itch.io/reflection*
 
 # Goal
 Light up all the required targets by passing also through the checkpoints
@@ -23,3 +24,6 @@ Select and place each of the items from the inventory. (In some levels you don't
 | ![items4](https://github.com/OrangoMango/Reflection/assets/61402409/2bec9466-a8f4-4b35-9e23-6b2ea3845ea5)| ![checkpoint1](https://github.com/OrangoMango/Reflection/assets/61402409/4fe88697-72b0-43da-a605-e56fdaee5b8d) | Checkpoint | If present, the laser beam must pass through it |
 | - | ![blocktile-export](https://github.com/OrangoMango/Reflection/assets/61402409/a78969e5-d194-4b90-b6fe-ecfa0f2de63e) | Blocked tile | You can't place tiles here |
 | ![items6](https://github.com/OrangoMango/Reflection/assets/61402409/5ebaa668-19d1-4107-acfe-b37295b021ea) | ![lasertile1](https://github.com/OrangoMango/Reflection/assets/61402409/8ca55a82-94c3-43af-913c-3c3f2110c2e3) | Laser tile | Provides the laser beam |
+
+# Screenshot
+![Screenshot from 2024-02-26 19-17-54](https://github.com/OrangoMango/Reflection/assets/61402409/bc751051-c5f8-4063-b80f-1db4ffe6aaea)
