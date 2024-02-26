@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+
+    <parent name="webfx-parent"/>
+
+    <groupId>com.orangomango</groupId>
+    <artifactId>reflectiongame</artifactId>
+    <version>1.0</version>
+
+    <maven-pom-manual>
+        <properties>
+            <openjfx.version>19</openjfx.version>
+        </properties>
+    </maven-pom-manual>
+
+    <modules>
+        <subdirectories-modules/>
+    </modules>
+
+    <required-libraries>
+        <webfx-library artifact="dev.webfx:webfx:0.1.0-SNAPSHOT"/>
+        <webfx-library artifact="dev.webfx:webfx-extras:0.1.0-SNAPSHOT"/>
+    </required-libraries>
+
+</project>
