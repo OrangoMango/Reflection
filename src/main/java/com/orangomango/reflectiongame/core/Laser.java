@@ -97,7 +97,7 @@ public class Laser{
 	}
 
 	private void renderLaser(GraphicsContext gc){
-		gc.setStroke(Color.RED);
+		gc.setStroke(Color.web("#5BFD58"));
 		gc.setLineWidth(3);
 		for (int i = 0; i < this.points.size()-1; i++){
 			Point2D a = this.points.get(i);
