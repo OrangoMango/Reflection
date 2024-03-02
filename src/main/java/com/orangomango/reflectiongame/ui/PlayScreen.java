@@ -38,11 +38,12 @@ public class PlayScreen extends GameScreen{
 
 	private static final Font FONT = Font.loadFont(PlayScreen.class.getResourceAsStream("/misc/font.ttf"), 40);
 
-	public PlayScreen(int w, int h, HashMap<KeyCode, Boolean> keys){
+	public PlayScreen(int w, int h, HashMap<KeyCode, Boolean> keys, int startLevel){
 		super(w, h, keys);
 
 		// Load all the levels
 		loadLevels();
+		this.currentLevel = startLevel;
 		loadWorld(this.currentLevel);
 	}
 

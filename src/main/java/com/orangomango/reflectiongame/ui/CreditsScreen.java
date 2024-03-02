@@ -46,7 +46,7 @@ public class CreditsScreen extends GameScreen{
 		gc.setFill(Color.BLACK);
 		gc.setTextAlign(TextAlignment.CENTER);
 		gc.setFont(FONT);
-		gc.fillText("\"Reflection\"\nGame made in Java (from scratch)\nwith the JavaFX framework\n\n---\nCode: OrangoMango\nImages: OrangoMango\nAudio: freesound.org\n\nMade for the Indie Dev Game Jam #3\nv1.0 Dev time: 72h\nTheme: \"One tool, Many uses\"\n\nSource code available on GitHub\nhttps://orangomango.github.io\n\nFebruary 2024 :)", this.width/2.0, this.height/2.0-this.moveY);
+		gc.fillText("\"Reflection\" v2.0\nGame made in Java (from scratch)\nwith the JavaFX framework\n\n---\nCode: OrangoMango\nImages: OrangoMango\nAudio: freesound.org\n\nMade for the Indie Dev Game Jam #3\nv1.0 Dev time: 72h\nTheme: \"One tool, Many uses\"\n\nSource code available on GitHub\nhttps://orangomango.github.io\n\nv1.0 released on February 2024 :)", this.width/2.0, this.height/2.0-this.moveY);
 		gc.restore();
 	}
 }
