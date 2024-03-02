@@ -11,6 +11,12 @@ import javafx.scene.text.TextAlignment;
 import javafx.util.Pair;
 import javafx.geometry.Rectangle2D;
 
+import javafx.scene.image.WritableImage;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.canvas.Canvas;
+import javax.imageio.ImageIO;
+import java.awt.image.RenderedImage;
+
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.io.*;
@@ -28,7 +34,7 @@ public class PlayScreen extends GameScreen{
 	private double spaceX, spaceY;
 	private ArrayList<Pair<World, Laser>> worlds = new ArrayList<>();
 	private int currentLevel = 0;
-	private boolean levelCompleted;
+	private boolean levelCompleted, inputAllowed = true, justShowedArrows;
 
 	private static final Font FONT = Font.loadFont(PlayScreen.class.getResourceAsStream("/misc/font.ttf"), 40);
 
@@ -36,6 +42,11 @@ public class PlayScreen extends GameScreen{
 		super(w, h, keys);
 
 		// Load all the levels
+		loadLevels();
+		loadWorld(this.currentLevel);
+	}
+
+	private void loadLevels(){
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/misc/levels.data")));
 			String line;
@@ -44,6 +55,7 @@ public class PlayScreen extends GameScreen{
 			Inventory cInv = null;
 			ArrayList<Light> lights = new ArrayList<>();
 			ArrayList<String> matrix = new ArrayList<>();
+			this.worlds.clear();
 			while ((line = reader.readLine()) != null){
 				if (!line.startsWith("[") && !line.isBlank()){
 					if (line.equals("end")){
@@ -63,7 +75,7 @@ public class PlayScreen extends GameScreen{
 								int ly = Integer.parseInt(line.substring(2).split(" ")[1]);
 								int ld = Integer.parseInt(line.substring(2).split(" ")[3]);
 								Tile tile = cWorld.getTileAt(lx, ly);
-								cLaser = new Laser(cWorld, lx, ly, ld);
+								cLaser = new Laser(null, cWorld, lx, ly, ld);
 								((Rotatable)tile).setRotationDisabled(line.substring(2).split(" ")[2].equals("noRot"));
 								for (int i = 0; i < ld; i++){
 									((Rotatable)tile).rotate90();
@@ -101,8 +113,6 @@ public class PlayScreen extends GameScreen{
 		} catch (IOException ex){
 			ex.printStackTrace();
 		}
-
-		loadWorld(this.currentLevel);
 	}
 
 	private void loadWorld(int index){
@@ -115,7 +125,7 @@ public class PlayScreen extends GameScreen{
 
 	@Override
 	public void handleMouseMovement(MouseEvent e, double scale, double offsetX){
-		if (this.levelCompleted) return;
+		if (!this.inputAllowed) return;
 		this.mouseX = (e.getX()-offsetX)/scale;
 		this.mouseY = e.getY()/scale;
 		int px = (int)((this.mouseX-this.spaceX)/Tile.SIZE);
@@ -137,7 +147,7 @@ public class PlayScreen extends GameScreen{
 
 	@Override
 	public void handleMouseInput(MouseEvent e, double scale, double offsetX){
-		if (this.levelCompleted) return;
+		if (!this.inputAllowed) return;
 		int px = (int)(((e.getX()-offsetX)/scale-this.spaceX)/Tile.SIZE);
 		int py = (int)((e.getY()/scale-this.spaceY)/Tile.SIZE);
 		if (e.getButton() == MouseButton.PRIMARY){
@@ -178,7 +188,7 @@ public class PlayScreen extends GameScreen{
 								}
 							}
 						}
-						this.currentLaser = new Laser(this.currentWorld, after.getX(), after.getY(), 0);
+						this.currentLaser = new Laser(null, this.currentWorld, after.getX(), after.getY(), 0);
 					} else if (after instanceof SingleMirror){
 						this.currentWorld.getLights().add(new Light(after.getX(), after.getY()));
 					}
@@ -269,6 +279,7 @@ public class PlayScreen extends GameScreen{
 		for (int x = 0; x < this.currentWorld.getWidth(); x++){
 			for (int y = 0; y < this.currentWorld.getHeight(); y++){
 				Tile tile = this.currentWorld.getTileAt(x, y);
+				tile.hasLaser = false;
 				if (tile instanceof Checkpoint){
 					((Checkpoint)tile).setActivated(false);
 				}
@@ -278,9 +289,23 @@ public class PlayScreen extends GameScreen{
 			this.currentLaser.update();
 			if (this.currentLaser.getCheckpointsPassed() == this.currentWorld.getCheckpoints()){
 				long onLights = this.currentWorld.getLights().stream().filter(l -> l.isOn()).count();
-				if (onLights >= this.currentWorld.getInventory().getTargets() && !this.levelCompleted){
-					this.levelCompleted = true;
-					Util.playSound("level_completed.wav");
+				boolean allLaser = true;
+				for (int x = 0; x < this.currentWorld.getWidth(); x++){
+					for (int y = 0; y < this.currentWorld.getHeight(); y++){
+						Tile tile = this.currentWorld.getTileAt(x, y);
+						// Tiles excluded: empty tile, laser tile and block tile
+						if (tile.getId() != 5 && tile.getId() != 0 && tile.getId() != 6 && !tile.hasLaser){
+							allLaser = false;
+						}
+					}
+				}
+
+				if (allLaser && onLights >= this.currentWorld.getInventory().getTargets() && !this.levelCompleted && this.currentWorld.getInventory().isEmpty()){
+					this.inputAllowed = false;
+					Util.schedule(() -> {
+						this.levelCompleted = true;
+						Util.playSound("level_completed.wav");
+					}, 1000);
 				}
 			}
 		}
@@ -298,11 +323,56 @@ public class PlayScreen extends GameScreen{
 			}
 		}
 
-		// Skip the level
-		if (this.keys.getOrDefault(KeyCode.N, false)){
-			this.levelCompleted = true;
-			Util.playSound("invalid.wav");
-			this.keys.put(KeyCode.N, false);
+		// Skip/restart the level
+		if (this.inputAllowed){
+			if (this.keys.getOrDefault(KeyCode.N, false)){
+				this.levelCompleted = true;
+				Util.playSound("invalid.wav");
+				this.keys.put(KeyCode.N, false);
+			} else if (this.keys.getOrDefault(KeyCode.R, false)){
+				loadLevels();
+				loadWorld(this.currentLevel);
+				this.keys.put(KeyCode.R, false);
+			}
+		}
+
+		if (this.keys.getOrDefault(KeyCode.S, false) && this.inputAllowed){
+			for (int x = 0; x < this.currentWorld.getWidth(); x++){
+				for (int y = 0; y < this.currentWorld.getHeight(); y++){
+					Tile tile = this.currentWorld.getTileAt(x, y);
+					if (tile instanceof Flippable){
+						tile.setShowArrow(!((Flippable)tile).isFlippingDisabled());
+					} else if (tile instanceof Rotatable){
+						tile.setShowArrow(!((Rotatable)tile).isRotationDisabled());
+					}
+				}
+			}
+			this.justShowedArrows = true;
+		} else if (this.justShowedArrows || !this.inputAllowed){
+			for (int x = 0; x < this.currentWorld.getWidth(); x++){
+				for (int y = 0; y < this.currentWorld.getHeight(); y++){
+					this.currentWorld.getTileAt(x, y).setShowArrow(false);
+				}
+			}
+			this.justShowedArrows = false;
+		}
+
+		if (this.keys.getOrDefault(KeyCode.Q, false)){
+			File file = new File(System.getProperty("user.home"), "reflection_level-"+this.currentLevel+".png");
+			if (file != null){
+				try {
+					Canvas miniCanvas = new Canvas(Tile.SIZE*this.currentWorld.getWidth(), Tile.SIZE*this.currentWorld.getHeight());
+					this.currentWorld.render(miniCanvas.getGraphicsContext2D());
+					if (this.currentLaser != null) this.currentLaser.render(miniCanvas.getGraphicsContext2D());
+					WritableImage wi = new WritableImage((int)miniCanvas.getWidth(), (int)miniCanvas.getHeight());
+					miniCanvas.snapshot(null, wi);
+					RenderedImage ri = SwingFXUtils.fromFXImage(wi, null);
+					ImageIO.write(ri, "png", file);
+					System.out.println("Screenshot saved");
+				} catch (IOException ex){
+					ex.printStackTrace();
+				}
+			}
 		}
 
 		gc.save();
@@ -332,7 +402,7 @@ public class PlayScreen extends GameScreen{
 			gc.save();
 			gc.setGlobalAlpha(0.6);
 			final int index = this.currentWorld.getInventory().mapIndexToType(this.selectedItem);
-			gc.drawImage(AssetLoader.getInstance().getImage("items.png"), 1+index*34, 1, 32, 32, this.mouseX, this.mouseY, Tile.SIZE, Tile.SIZE);
+			gc.drawImage(AssetLoader.getInstance().getImage("items.png"), 1+index*34, 1, 32, 32, this.mouseX-Tile.SIZE/2, this.mouseY-Tile.SIZE/2, Tile.SIZE, Tile.SIZE);
 			gc.restore();
 		}
 
@@ -344,6 +414,7 @@ public class PlayScreen extends GameScreen{
 				} else {
 					loadWorld(this.currentLevel);
 					this.levelCompleted = false;
+					this.inputAllowed = true;
 					this.selectedItem = -1;
 				}
 				this.keys.put(KeyCode.SPACE, false);
@@ -356,7 +427,7 @@ public class PlayScreen extends GameScreen{
 			gc.setFill(Color.WHITE);
 			gc.setFont(FONT);
 			gc.setTextAlign(TextAlignment.CENTER);
-			gc.fillText("Level completed!\nPress space to continue", this.width/2.0, this.height/2.0);
+			gc.fillText("Level completed!\nPress space to continue", this.width/2.0, this.height-80);
 			gc.restore();
 		}
 

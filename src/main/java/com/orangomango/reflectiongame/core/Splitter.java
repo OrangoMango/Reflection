@@ -12,8 +12,8 @@ public class Splitter extends Mirror{
 	}
 
 	@Override
-	public Laser generateLaser(World world, int dir){
-		return new Laser(world, this.x, this.y, dir);
+	public Laser generateLaser(Laser parent, World world, int dir){
+		return new Laser(parent, world, this.x, this.y, dir);
 	}
 
 	@Override

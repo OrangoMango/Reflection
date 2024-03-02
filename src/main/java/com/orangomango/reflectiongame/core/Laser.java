@@ -15,8 +15,10 @@ public class Laser{
 	private ArrayList<Laser> generatedLasers = new ArrayList<>();
 	private World world;
 	private int checkpointsPassed;
+	private Laser parent;
 
-	public Laser(World world, int x, int y, int d){
+	public Laser(Laser parent, World world, int x, int y, int d){
+		this.parent = parent;
 		this.world = world;
 		this.x = x;
 		this.y = y;
@@ -29,6 +31,7 @@ public class Laser{
 		int cy = this.y;
 		int dir = this.direction;
 		int lastDir = dir;
+		boolean loopFound = false;
 		this.checkpointsPassed = 0;
 		this.points.clear();
 		this.generatedLasers.clear();
@@ -38,10 +41,18 @@ public class Laser{
 			cx += t[0];
 			cy += t[1];
 			this.points.add(new Point2D(cx+0.5, cy+0.5));
+			if (loopFound) break;
 			Tile tile = this.world.getTileAt(cx, cy);
 			if (tile != null){
-				Laser gen = tile.generateLaser(this.world, dir);
-				if (gen != null) this.generatedLasers.add(gen);
+				tile.hasLaser = true;
+				Laser gen = tile.generateLaser(this, this.world, dir);
+				if (gen != null){
+					if (getRoot().containsLaser(gen.x, gen.y)){
+						loopFound = true;
+					} else {
+						this.generatedLasers.add(gen);
+					}
+				}
 				lastDir = dir;
 				dir = tile.updateDirection(dir);
 
@@ -52,7 +63,7 @@ public class Laser{
 					}
 				}
 			}
-		} while (this.world.containsPoint(cx, cy) && dir != -1 && this.points.size() < 25);
+		} while (this.world.containsPoint(cx, cy) && dir != -1);
 
 		Point2D lastPoint = this.points.get(this.points.size()-1);
 		this.points.remove(this.points.size()-1);
@@ -65,6 +76,23 @@ public class Laser{
 					light.setOn(true);
 				}
 			}
+		}
+	}
+
+	private Laser getRoot(){
+		return this.parent == null ? this : this.parent.getRoot();
+	}
+
+	private boolean containsLaser(int lx, int ly){
+		if (this.x == lx && this.y == ly){
+			return true;
+		} else {
+			for (Laser laser : this.generatedLasers){
+				if (laser.containsLaser(lx, ly)){
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 

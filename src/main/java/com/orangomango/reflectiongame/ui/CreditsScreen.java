@@ -7,6 +7,7 @@ import javafx.util.Duration;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import javafx.scene.input.MouseEvent;
 
 import java.util.HashMap;
 
@@ -28,6 +29,11 @@ public class CreditsScreen extends GameScreen{
 		}));
 		loop.setCycleCount(Animation.INDEFINITE);
 		loop.play();
+	}
+
+	@Override
+	public void handleMouseInput(MouseEvent e, double scale, double offsetX){
+		SCREEN_SWITCHER.accept(new HomeScreen(this.width, this.height, this.keys));
 	}
 
 	@Override

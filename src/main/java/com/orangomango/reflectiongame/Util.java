@@ -12,6 +12,17 @@ public class Util{
 		AssetLoader.getInstance().getAudio(name).play();
 	}
 
+	public static void schedule(Runnable r, int delay){
+		new Thread(() -> {
+			try {
+				Thread.sleep(delay);
+				r.run();
+			} catch (InterruptedException ex){
+				ex.printStackTrace();
+			}
+		}).start();
+	}
+
 	public static Point2D reducePoint(Point2D point, int dir){
 		switch (dir){
 			case DIRECTION_N:

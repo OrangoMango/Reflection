@@ -27,6 +27,10 @@ public class Inventory{
 		}
 	}
 
+	public boolean isEmpty(){
+		return this.items.values().stream().filter(i -> i != 0).findAny().isEmpty();
+	}
+
 	public int getTargets(){
 		return this.targets;
 	}
