@@ -395,6 +395,7 @@ public class PlayScreen extends GameScreen{
 					ex.printStackTrace();
 				}
 			}
+			this.keys.put(KeyCode.Q, false);
 		}
 
 		gc.save();
