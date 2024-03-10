@@ -48,6 +48,8 @@ public class MainApplication extends Application{
 		canvas.setOnKeyReleased(e -> this.keys.put(e.getCode(), false));
 		canvas.setOnMousePressed(e -> this.currentScreen.handleMouseInput(e, SCALE, OFFSET_X));
 		canvas.setOnMouseMoved(e -> this.currentScreen.handleMouseMovement(e, SCALE, OFFSET_X));
+		canvas.setOnMouseDragged(e -> this.currentScreen.handleMouseDragged(e, SCALE, OFFSET_X));
+		canvas.setOnMouseReleased(e -> this.currentScreen.handleMouseReleased(e, SCALE, OFFSET_X));
 
 		AnimationTimer loop = new AnimationTimer(){
 			@Override
@@ -68,7 +70,7 @@ public class MainApplication extends Application{
 	}
 
 	private void update(GraphicsContext gc){
-		gc.clearRect(0, 0, WIDTH, HEIGHT);
+		gc.clearRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 		gc.translate(OFFSET_X, 0);
 		this.currentScreen.update(gc, SCALE);
 		gc.translate(-OFFSET_X, 0);

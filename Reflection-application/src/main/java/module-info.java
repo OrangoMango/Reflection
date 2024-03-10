@@ -9,6 +9,7 @@ module Reflection.application {
     requires javafx.media;
     requires webfx.extras.canvas.pane;
     requires webfx.platform.resource;
+    requires webfx.platform.scheduler;
 
     // Exported packages
     exports com.orangomango.reflectiongame;

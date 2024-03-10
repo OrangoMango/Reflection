@@ -18,6 +18,9 @@ public interface EmbedResourcesBundle extends ClientBundle {
     @Source("misc/levels.data")
     TextResource r3();
 
+    @Source("misc/solutions.data")
+    TextResource r4();
+
 
 
     final class ProvidedGwtResourceBundle extends GwtResourceBundleBase {
@@ -25,6 +28,7 @@ public interface EmbedResourcesBundle extends ClientBundle {
             registerResource("dev/webfx/platform/meta/exe/exe.properties", R.r1());
             registerResource("misc/assets.data", R.r2());
             registerResource("misc/levels.data", R.r3());
+            registerResource("misc/solutions.data", R.r4());
 
         }
     }

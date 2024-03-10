@@ -2,3 +2,5 @@ build/
 .gradle/
 stuff/
 target/
+
+.DS_Store

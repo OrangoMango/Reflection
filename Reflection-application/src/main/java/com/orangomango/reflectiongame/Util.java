@@ -2,6 +2,8 @@ package com.orangomango.reflectiongame;
 
 import javafx.geometry.Point2D;
 
+import dev.webfx.platform.scheduler.Scheduler;
+
 public class Util{
 	public static final int DIRECTION_N = 0;
 	public static final int DIRECTION_E = 1;
@@ -10,6 +12,25 @@ public class Util{
 
 	public static void playSound(String name){
 		AssetLoader.getInstance().getAudio(name).play();
+	}
+
+	public static void schedule(Runnable r, int delay){
+		Scheduler.scheduleDelay(delay, r);
+	}
+
+	public static int convertDirection(int dir){
+		switch (dir){
+			case DIRECTION_N:
+				return 1;
+			case DIRECTION_E:
+				return 2;
+			case DIRECTION_S:
+				return 4;
+			case DIRECTION_W:
+				return 8;
+			default:
+				return 0;
+		}
 	}
 
 	public static Point2D reducePoint(Point2D point, int dir){

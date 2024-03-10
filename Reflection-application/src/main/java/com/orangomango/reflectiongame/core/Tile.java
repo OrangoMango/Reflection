@@ -6,9 +6,10 @@ import com.orangomango.reflectiongame.AssetLoader;
 
 public class Tile{
 	protected int x, y;
-	private boolean prePlaced;
 	protected int id;
+	private boolean prePlaced;
 	private boolean showArrow;
+	public boolean hasLaser;
 
 	public static final double SIZE = 64;
 
@@ -21,7 +22,7 @@ public class Tile{
 		return dir;
 	}
 
-	public Laser generateLaser(World world, int dir){
+	public Laser generateLaser(Laser parent, World world, int dir){
 		return null;
 	}
 

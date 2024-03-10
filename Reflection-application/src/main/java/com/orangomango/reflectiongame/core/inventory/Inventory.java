@@ -9,13 +9,15 @@ public class Inventory{
 	private ArrayList<Integer> indices = new ArrayList<>();
 
 	public Inventory(String data){
-		String[] parts = data.split(" ");
-		this.targets = Integer.parseInt(parts[0].substring(1));
-		for (int i = 1; i < parts.length; i++){
-			int type = Integer.parseInt(parts[i].split(";")[0]);
-			int amount = Integer.parseInt(parts[i].split(";")[1]);
-			this.items.put(type, amount);
-			this.indices.add(type);
+		if (data != null){
+			String[] parts = data.split(" ");
+			this.targets = Integer.parseInt(parts[0].substring(1));
+			for (int i = 1; i < parts.length; i++){
+				int type = Integer.parseInt(parts[i].split(";")[0]);
+				int amount = Integer.parseInt(parts[i].split(";")[1]);
+				this.items.put(type, amount);
+				this.indices.add(type);
+			}
 		}
 	}
 
@@ -25,6 +27,10 @@ public class Inventory{
 		} else {
 			return this.indices.get(index);
 		}
+	}
+
+	public boolean isEmpty(){
+		return this.items.values().stream().filter(i -> i != 0).findAny().isEmpty();
 	}
 
 	public int getTargets(){

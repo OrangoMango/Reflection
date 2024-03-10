@@ -11,6 +11,7 @@
     <embed-resources>
         <resource>misc/assets.data</resource>
         <resource>misc/levels.data</resource>
+	<resource>misc/solutions.data</resource>
     </embed-resources>
 
     <dependencies>

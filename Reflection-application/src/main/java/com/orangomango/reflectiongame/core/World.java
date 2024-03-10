@@ -21,6 +21,7 @@ public class World{
 		this.lights = lights;
 		this.inventory = inv;
 		this.map = new Tile[this.width][this.height];
+		this.checkpoints = inv.getItems().getOrDefault(3, 0);
 		for (int x = 0; x < this.width; x++){
 			for (int y = 0; y < this.height; y++){
 				final int id = Integer.parseInt(world.get(y).split(" ")[x]);

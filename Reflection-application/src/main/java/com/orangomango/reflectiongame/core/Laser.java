@@ -15,8 +15,11 @@ public class Laser{
 	private ArrayList<Laser> generatedLasers = new ArrayList<>();
 	private World world;
 	private int checkpointsPassed;
+	private Laser parent;
+	private int[][] map;
 
-	public Laser(World world, int x, int y, int d){
+	public Laser(Laser parent, World world, int x, int y, int d){
+		this.parent = parent;
 		this.world = world;
 		this.x = x;
 		this.y = y;
@@ -29,19 +32,30 @@ public class Laser{
 		int cy = this.y;
 		int dir = this.direction;
 		int lastDir = dir;
+		boolean loopFound = false;
 		this.checkpointsPassed = 0;
 		this.points.clear();
 		this.generatedLasers.clear();
 		this.points.add(new Point2D(cx+0.5, cy+0.5));
+		this.map = new int[this.world.getWidth()][this.world.getHeight()];
 		do {
+			this.map[cx][cy] |= Util.convertDirection(dir);
 			int[] t = Util.getDirection(dir);
 			cx += t[0];
 			cy += t[1];
 			this.points.add(new Point2D(cx+0.5, cy+0.5));
+			if (loopFound) break;
 			Tile tile = this.world.getTileAt(cx, cy);
 			if (tile != null){
-				Laser gen = tile.generateLaser(this.world, dir);
-				if (gen != null) this.generatedLasers.add(gen);
+				tile.hasLaser = true;
+				if (getRoot().containsLaser(cx, cy, Util.convertDirection(dir))){
+					loopFound = true;
+				} else {
+					Laser gen = tile.generateLaser(this, this.world, dir);
+					if (gen != null){
+						this.generatedLasers.add(gen);
+					}
+				}
 				lastDir = dir;
 				dir = tile.updateDirection(dir);
 
@@ -52,7 +66,7 @@ public class Laser{
 					}
 				}
 			}
-		} while (this.world.containsPoint(cx, cy) && dir != -1 && this.points.size() < 25);
+		} while (this.world.containsPoint(cx, cy) && dir != -1);
 
 		Point2D lastPoint = this.points.get(this.points.size()-1);
 		this.points.remove(this.points.size()-1);
@@ -68,9 +82,26 @@ public class Laser{
 		}
 	}
 
+	private Laser getRoot(){
+		return this.parent == null ? this : this.parent.getRoot();
+	}
+
+	private boolean containsLaser(int lx, int ly, int ld){
+		if ((this.map[lx][ly] & ld) == ld){
+			return true;
+		} else {
+			for (Laser laser : this.generatedLasers){
+				if (laser.containsLaser(lx, ly, ld)){
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+
 	private void renderLaser(GraphicsContext gc){
 		gc.setStroke(Color.RED);
-		gc.setLineWidth(3);
+		gc.setLineWidth(1.5);
 		for (int i = 0; i < this.points.size()-1; i++){
 			Point2D a = this.points.get(i);
 			Point2D b = this.points.get(i+1);

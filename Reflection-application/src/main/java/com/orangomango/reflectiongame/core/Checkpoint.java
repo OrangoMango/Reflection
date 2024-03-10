@@ -9,6 +9,8 @@ public class Checkpoint extends Tile implements Flippable{
 	private boolean flipped;
 	private boolean flipDisabled;
 	private boolean activated;
+	private long lastChecked = System.currentTimeMillis();
+	private boolean on;
 
 	public Checkpoint(int x, int y){
 		super(x, y);
@@ -24,6 +26,11 @@ public class Checkpoint extends Tile implements Flippable{
 	}
 
 	@Override
+	public boolean isFlipped(){
+		return this.flipped;
+	}
+
+	@Override
 	public void flip(){
 		this.flipped = !this.flipped;
 	}
@@ -31,7 +38,14 @@ public class Checkpoint extends Tile implements Flippable{
 	@Override
 	public void render(GraphicsContext gc){
 		final int index = this.flipped ? 1 : 0;
-		gc.drawImage(AssetLoader.getInstance().getImage("checkpoint"+(this.activated ? "_on" : "")+".png"), 1+index*66, 1, 64, 64, this.x*SIZE, this.y*SIZE, SIZE, SIZE);
+		long now = System.currentTimeMillis();
+		if (!this.activated && now-this.lastChecked > 750){
+			this.lastChecked = now;
+			this.on = !this.on;
+		} else if (this.activated){
+			this.on = true;
+		}
+		gc.drawImage(AssetLoader.getInstance().getImage("checkpoint"+(this.on ? "_on" : "")+".png"), 1+index*66, 1, 64, 64, this.x*SIZE, this.y*SIZE, SIZE, SIZE);
 	}
 
 	@Override

@@ -19,6 +19,14 @@ public abstract class GameScreen{
 		this.keys = keys;
 	}
 
+	public void handleMouseDragged(MouseEvent e, double scale, double offsetX){
+		// Do nothing
+	}
+
+	public void handleMouseReleased(MouseEvent e, double scale, double offsetX){
+		// Do nothing
+	}
+
 	public void handleMouseInput(MouseEvent e, double scale, double offsetX){
 		// Do nothing
 	}
