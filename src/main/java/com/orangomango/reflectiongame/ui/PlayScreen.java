@@ -384,13 +384,19 @@ public class PlayScreen extends GameScreen{
 		if (this.currentLaser != null) this.currentLaser.render(gc);
 		gc.translate(-this.spaceX, -this.spaceY);
 
+		gc.save();
+		gc.setGlobalAlpha(0.6);
+		gc.setFill(Color.WHITE);
+		gc.fillRect(this.width-165, 50, 150, 90*this.currentWorld.getInventory().getItems().size()+10);
+		gc.restore();
+
 		for (int i = 0; i < this.currentWorld.getInventory().getItems().size(); i++){
 			int index = this.currentWorld.getInventory().mapIndexToType(i);
-			gc.drawImage(AssetLoader.getInstance().getImage("items.png"), 1+index*34, 1, 32, 32, this.width-120, 30+i*90, 80, 80);
+			gc.drawImage(AssetLoader.getInstance().getImage("items.png"), 1+index*34, 1, 32, 32, this.width-120, 60+i*90, 80, 80);
 			gc.setFont(FONT);
 			gc.setTextAlign(TextAlignment.LEFT);
 			gc.setFill(Color.BLACK);
-			gc.fillText(Integer.toString(this.currentWorld.getInventory().getItems().get(index)), this.width-120-25, 30+i*90+40);
+			gc.fillText(Integer.toString(this.currentWorld.getInventory().getItems().get(index)), this.width-120-25, 60+i*90+40);
 		}
 
 		gc.setFont(FONT);
@@ -422,7 +428,7 @@ public class PlayScreen extends GameScreen{
 			}
 
 			gc.save();
-			gc.setGlobalAlpha(0.8);
+			gc.setGlobalAlpha(0.65);
 			gc.setFill(Color.BLACK);
 			gc.fillRect(0, 0, this.width, this.height);
 			gc.setFill(Color.WHITE);

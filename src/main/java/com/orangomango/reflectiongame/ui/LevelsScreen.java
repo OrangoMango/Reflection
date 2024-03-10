@@ -80,9 +80,9 @@ public class LevelsScreen extends GameScreen{
 			gc.setFill(Color.ORANGE);
 			Point2D pos = getPosition(i);
 			if (this.hoverIndex == i){
-				gc.fillRect(pos.getX()-BUTTON_SIZE*0.15, pos.getY()-BUTTON_SIZE*0.15, BUTTON_SIZE*1.3, BUTTON_SIZE*1.3);
+				gc.drawImage(AssetLoader.getInstance().getImage("button_select_level.png"), pos.getX()-BUTTON_SIZE*0.15, pos.getY()-BUTTON_SIZE*0.15, BUTTON_SIZE*1.3, BUTTON_SIZE*1.3);
 			} else {
-				gc.fillRect(pos.getX(), pos.getY(), BUTTON_SIZE, BUTTON_SIZE);
+				gc.drawImage(AssetLoader.getInstance().getImage("button_select_level.png"), pos.getX(), pos.getY(), BUTTON_SIZE, BUTTON_SIZE);
 			}
 			gc.setTextAlign(TextAlignment.CENTER);
 			gc.setFont(FONT);

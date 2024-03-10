@@ -18,7 +18,7 @@ public class Light{
 		int[] dir = tile == null ? null : Util.getDirection(getDirection(tile.getRotation()));
 		gc.save();
 		gc.translate(this.x*Tile.SIZE+Tile.SIZE/2, this.y*Tile.SIZE+Tile.SIZE/2);
-		if (dir != null) gc.translate(Tile.SIZE/3*dir[0], Tile.SIZE/3*dir[1]);
+		if (dir != null) gc.translate(Tile.SIZE/2.5*dir[0], Tile.SIZE/2.5*dir[1]);
 		final double size = Tile.SIZE/4;
 		gc.drawImage(AssetLoader.getInstance().getImage("light.png"), this.on ? 1 : 19, 1, 16, 16, -size/2, -size/2, size, size);
 		gc.restore();
