@@ -39,7 +39,7 @@ public class Laser{
 		this.points.add(new Point2D(cx+0.5, cy+0.5));
 		this.map = new int[this.world.getWidth()][this.world.getHeight()];
 		do {
-			this.map[cx][cy] |= Util.convertDirection(dir);
+			this.map[cx][cy] |= Util.convertDirection(lastDir);
 			int[] t = Util.getDirection(dir);
 			cx += t[0];
 			cy += t[1];
