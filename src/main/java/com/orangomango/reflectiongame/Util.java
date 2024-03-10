@@ -23,6 +23,21 @@ public class Util{
 		}).start();
 	}
 
+	public static int convertDirection(int dir){
+		switch (dir){
+			case DIRECTION_N:
+				return 1;
+			case DIRECTION_E:
+				return 2;
+			case DIRECTION_S:
+				return 4;
+			case DIRECTION_W:
+				return 8;
+			default:
+				return 0;
+		}
+	}
+
 	public static Point2D reducePoint(Point2D point, int dir){
 		switch (dir){
 			case DIRECTION_N:
