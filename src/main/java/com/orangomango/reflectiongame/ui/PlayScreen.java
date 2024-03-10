@@ -25,6 +25,7 @@ import com.orangomango.reflectiongame.AssetLoader;
 import com.orangomango.reflectiongame.Util;
 import com.orangomango.reflectiongame.core.*;
 import com.orangomango.reflectiongame.core.inventory.Inventory;
+import com.orangomango.reflectiongame.core.inventory.Solution;
 
 public class PlayScreen extends GameScreen{
 	private World currentWorld;
@@ -35,8 +36,11 @@ public class PlayScreen extends GameScreen{
 	private ArrayList<Pair<World, Laser>> worlds = new ArrayList<>();
 	private int currentLevel = 0;
 	private boolean levelCompleted, inputAllowed = true, justShowedArrows;
+	private Solution solutions;
+	private Tile hintTile;
 
 	private static final Font FONT = Font.loadFont(PlayScreen.class.getResourceAsStream("/misc/font.ttf"), 40);
+	private static final Font FONT_SMALL = Font.loadFont(PlayScreen.class.getResourceAsStream("/misc/font.ttf"), 25);
 
 	public PlayScreen(int w, int h, HashMap<KeyCode, Boolean> keys, int startLevel){
 		super(w, h, keys);
@@ -45,6 +49,7 @@ public class PlayScreen extends GameScreen{
 		loadLevels();
 		this.currentLevel = startLevel;
 		loadWorld(this.currentLevel);
+		this.solutions = new Solution();
 	}
 
 	private void loadLevels(){
@@ -224,7 +229,7 @@ public class PlayScreen extends GameScreen{
 			} else {
 				this.selectedItem = -1;
 				for (int i = 0; i < this.currentWorld.getInventory().getItems().size(); i++){
-					Rectangle2D rect = new Rectangle2D(this.width-120, 30+i*90, 80, 80); // TODO: Scale
+					Rectangle2D rect = new Rectangle2D(this.width-120, 60+i*90, 80, 80);
 					if (rect.contains((e.getX()-offsetX)/scale, e.getY()/scale)){
 						this.selectedItem = i;
 						Util.playSound("button_click.wav");
@@ -303,6 +308,7 @@ public class PlayScreen extends GameScreen{
 
 				if (allLaser && onLights >= this.currentWorld.getInventory().getTargets() && !this.levelCompleted && this.currentWorld.getInventory().isEmpty()){
 					this.inputAllowed = false;
+					this.hintTile = null;
 					Util.schedule(() -> {
 						this.levelCompleted = true;
 						Util.playSound("level_completed.wav");
@@ -316,14 +322,6 @@ public class PlayScreen extends GameScreen{
 	public void update(GraphicsContext gc, double scale){
 		super.update(gc, scale);
 
-		for (int i = 1; i <= this.currentWorld.getInventory().getItems().size(); i++){
-			KeyCode keyCode = KeyCode.valueOf("DIGIT"+i);
-			if (this.keys.getOrDefault(keyCode, false)){
-				this.selectedItem = this.selectedItem == i-1 ? -1 : i-1;
-				this.keys.put(keyCode, false);
-			}
-		}
-
 		// Skip/restart the level
 		if (this.inputAllowed){
 			if (this.keys.getOrDefault(KeyCode.N, false)){
@@ -334,10 +332,16 @@ public class PlayScreen extends GameScreen{
 				loadLevels();
 				loadWorld(this.currentLevel);
 				this.keys.put(KeyCode.R, false);
+			} else if (this.keys.getOrDefault(KeyCode.H, false)){
+				if (this.hintTile == null){
+					this.hintTile = this.solutions.getHint(this.currentWorld, this.currentLevel);
+					Util.schedule(() -> this.hintTile = null, 1500);
+				}
+				this.keys.put(KeyCode.H, false);
 			}
 		}
 
-		if (this.keys.getOrDefault(KeyCode.S, false) && this.inputAllowed){
+		if (this.keys.getOrDefault(KeyCode.I, false) && this.inputAllowed){
 			for (int x = 0; x < this.currentWorld.getWidth(); x++){
 				for (int y = 0; y < this.currentWorld.getHeight(); y++){
 					Tile tile = this.currentWorld.getTileAt(x, y);
@@ -382,6 +386,12 @@ public class PlayScreen extends GameScreen{
 		gc.translate(this.spaceX, this.spaceY);
 		this.currentWorld.render(gc);
 		if (this.currentLaser != null) this.currentLaser.render(gc);
+		if (this.hintTile != null){
+			gc.save();
+			gc.setGlobalAlpha(0.8);
+			this.hintTile.render(gc);
+			gc.restore();
+		}
 		gc.translate(-this.spaceX, -this.spaceY);
 
 		gc.save();
@@ -403,6 +413,11 @@ public class PlayScreen extends GameScreen{
 		gc.setFill(Color.BLACK);
 		gc.setTextAlign(TextAlignment.CENTER);
 		gc.fillText(this.currentLevel+". Number of targets: "+this.currentWorld.getLights().stream().filter(l -> l.isOn()).count()+"/"+this.currentWorld.getInventory().getTargets(), this.width/2, 50);
+
+		gc.setFont(FONT_SMALL);
+		gc.setFill(Color.WHITE);
+		gc.setTextAlign(TextAlignment.LEFT);
+		gc.fillText("I - Info | N - Skip | R - Restart | H - Hint | Q - Screenshot", 50, this.height-60);
 
 		// Render the selected tool
 		if (this.selectedItem != -1){
@@ -431,7 +446,7 @@ public class PlayScreen extends GameScreen{
 			gc.setGlobalAlpha(0.65);
 			gc.setFill(Color.BLACK);
 			gc.fillRect(0, 0, this.width, this.height);
-			gc.setFill(Color.WHITE);
+			gc.setFill(Color.RED);
 			gc.setFont(FONT);
 			gc.setTextAlign(TextAlignment.CENTER);
 			gc.fillText("Level completed!\nPress space to continue", this.width/2.0, this.height-80);

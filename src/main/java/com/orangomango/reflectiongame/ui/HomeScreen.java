@@ -17,7 +17,7 @@ public class HomeScreen extends GameScreen{
 	public HomeScreen(int w, int h, HashMap<KeyCode, Boolean> keys){
 		super(w, h, keys);
 		this.playButton = new UiButton("button_play.png", w*0.5-BUTTON_WIDTH*1.1, h*0.5-BUTTON_HEIGHT*0.5, BUTTON_WIDTH, BUTTON_HEIGHT, () -> SCREEN_SWITCHER.accept(new PlayScreen(this.width, this.height, this.keys, 0)));
-		this.creditsButton = new UiButton("button_credits.png", w*0.5-BUTTON_WIDTH*1.1, h*0.5-BUTTON_HEIGHT*0.5+BUTTON_HEIGHT*1.3, BUTTON_WIDTH, BUTTON_HEIGHT, () -> SCREEN_SWITCHER.accept(new CreditsScreen(this.width, this.height, this.keys)));
+		this.creditsButton = new UiButton("button_credits.png", w*0.5-BUTTON_WIDTH*0.5, h*0.5-BUTTON_HEIGHT*0.5+BUTTON_HEIGHT*1.3, BUTTON_WIDTH, BUTTON_HEIGHT, () -> SCREEN_SWITCHER.accept(new CreditsScreen(this.width, this.height, this.keys)));
 		this.levelsButton = new UiButton("button_levels.png", w*0.5+BUTTON_WIDTH*0.1, h*0.5-BUTTON_HEIGHT*0.5, BUTTON_WIDTH, BUTTON_HEIGHT, () -> SCREEN_SWITCHER.accept(new LevelsScreen(this.width, this.height, this.keys)));
 	}
 

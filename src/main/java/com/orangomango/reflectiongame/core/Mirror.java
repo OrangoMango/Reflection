@@ -16,6 +16,11 @@ public class Mirror extends Tile implements Flippable{
 	}
 
 	@Override
+	public boolean isFlipped(){
+		return this.flipped;
+	}
+
+	@Override
 	public void flip(){
 		this.flipped = !this.flipped;
 	}
