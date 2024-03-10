@@ -23,7 +23,7 @@ public class CreditsScreen extends GameScreen{
 
 		Timeline loop = new Timeline(new KeyFrame(Duration.millis(25), e -> {
 			this.moveY += 2;
-			if (this.moveY > this.height*1.75){
+			if (this.moveY > this.height*2){
 				this.moveY = 0;
 			}
 		}));

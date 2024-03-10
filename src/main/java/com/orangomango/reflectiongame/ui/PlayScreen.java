@@ -130,33 +130,18 @@ public class PlayScreen extends GameScreen{
 	}
 
 	@Override
-	public void handleMouseMovement(MouseEvent e, double scale, double offsetX){
+	public void handleMouseDragged(MouseEvent e, double scale, double offsetX){
 		if (!this.inputAllowed) return;
 		this.mouseX = (e.getX()-offsetX)/scale;
 		this.mouseY = e.getY()/scale;
-		int px = (int)((this.mouseX-this.spaceX)/Tile.SIZE);
-		int py = (int)((this.mouseY-this.spaceY)/Tile.SIZE);
-		Tile tile = this.currentWorld.getTileAt(px, py);
-		for (int x = 0; x < this.currentWorld.getWidth(); x++){
-			for (int y = 0; y < this.currentWorld.getHeight(); y++){
-				this.currentWorld.getTileAt(x, y).setShowArrow(false);
-			}
-		}
-		if (tile != null){
-			if (tile instanceof Flippable){
-				tile.setShowArrow(!((Flippable)tile).isFlippingDisabled());
-			} else if (tile instanceof Rotatable){
-				tile.setShowArrow(!((Rotatable)tile).isRotationDisabled());
-			}
-		}
 	}
 
 	@Override
-	public void handleMouseInput(MouseEvent e, double scale, double offsetX){
-		if (!this.inputAllowed) return;
-		int px = (int)(((e.getX()-offsetX)/scale-this.spaceX)/Tile.SIZE);
-		int py = (int)((e.getY()/scale-this.spaceY)/Tile.SIZE);
+	public void handleMouseReleased(MouseEvent e, double scale, double offsetX){
+		if (!this.inputAllowed) return;	
 		if (e.getButton() == MouseButton.PRIMARY){
+			int px = (int)((this.mouseX-this.spaceX)/Tile.SIZE);
+			int py = (int)((this.mouseY-this.spaceY)/Tile.SIZE);
 			Tile after = null;
 			final int idx = this.currentWorld.getInventory().mapIndexToType(this.selectedItem);
 			switch (idx){
@@ -184,6 +169,7 @@ public class PlayScreen extends GameScreen{
 				if (before.isPrePlaced() && before.getId() != 0 || this.currentWorld.getInventory().getItems().getOrDefault(idx, -1) == 0){
 					this.currentWorld.setTileAt(before);
 					Util.playSound("invalid.wav");
+					this.selectedItem = -1;
 				} else {
 					if (after instanceof LaserTile){
 						for (int x = 0; x < this.currentWorld.getWidth(); x++){
@@ -228,13 +214,44 @@ public class PlayScreen extends GameScreen{
 				}
 			} else {
 				this.selectedItem = -1;
-				for (int i = 0; i < this.currentWorld.getInventory().getItems().size(); i++){
-					Rectangle2D rect = new Rectangle2D(this.width-120, 60+i*90, 80, 80);
-					if (rect.contains((e.getX()-offsetX)/scale, e.getY()/scale)){
-						this.selectedItem = i;
-						Util.playSound("button_click.wav");
-						break;
-					}
+			}
+		}
+	}
+
+	@Override
+	public void handleMouseMovement(MouseEvent e, double scale, double offsetX){
+		if (!this.inputAllowed) return;
+		this.mouseX = (e.getX()-offsetX)/scale;
+		this.mouseY = e.getY()/scale;
+		int px = (int)((this.mouseX-this.spaceX)/Tile.SIZE);
+		int py = (int)((this.mouseY-this.spaceY)/Tile.SIZE);
+		Tile tile = this.currentWorld.getTileAt(px, py);
+		for (int x = 0; x < this.currentWorld.getWidth(); x++){
+			for (int y = 0; y < this.currentWorld.getHeight(); y++){
+				this.currentWorld.getTileAt(x, y).setShowArrow(false);
+			}
+		}
+		if (tile != null){
+			if (tile instanceof Flippable){
+				tile.setShowArrow(!((Flippable)tile).isFlippingDisabled());
+			} else if (tile instanceof Rotatable){
+				tile.setShowArrow(!((Rotatable)tile).isRotationDisabled());
+			}
+		}
+	}
+
+	@Override
+	public void handleMouseInput(MouseEvent e, double scale, double offsetX){
+		if (!this.inputAllowed) return;
+		int px = (int)(((e.getX()-offsetX)/scale-this.spaceX)/Tile.SIZE);
+		int py = (int)((e.getY()/scale-this.spaceY)/Tile.SIZE);
+		if (e.getButton() == MouseButton.PRIMARY){
+			for (int i = 0; i < this.currentWorld.getInventory().getItems().size(); i++){
+				Rectangle2D rect = new Rectangle2D(this.width-120, 60+i*90, 80, 80);
+				if (rect.contains((e.getX()-offsetX)/scale, e.getY()/scale)){
+					this.selectedItem = i;
+					Util.playSound("button_click.wav");
+					break;
 				}
 			}
 		} else if (e.getButton() == MouseButton.SECONDARY){
