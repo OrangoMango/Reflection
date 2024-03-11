@@ -88,7 +88,6 @@ public class Laser{
 
 	private boolean containsLaser(int lx, int ly, int ld){
 		if ((this.map[lx][ly] & ld) == ld){
-			System.out.println(lx+" "+ly+" "+this.map[lx][ly]);
 			return true;
 		} else {
 			for (Laser laser : this.generatedLasers){
