@@ -38,12 +38,21 @@ public class PlayScreen extends GameScreen{
 	private boolean levelCompleted, inputAllowed = true, justShowedArrows;
 	private Solution solutions;
 	private Tile hintTile;
+	private UiButton infoButton, skipButton, clearButton, hintButton;
 
 	private static final Font FONT = Font.loadFont(PlayScreen.class.getResourceAsStream("/misc/font.ttf"), 40);
 	private static final Font FONT_SMALL = Font.loadFont(PlayScreen.class.getResourceAsStream("/misc/font.ttf"), 25);
 
 	public PlayScreen(int w, int h, HashMap<KeyCode, Boolean> keys, int startLevel){
 		super(w, h, keys);
+
+		this.infoButton = new UiButton("quick_buttons.png", 300, 75, 32, 32, () -> {
+			displayInfo();
+			Util.schedule(() -> this.justShowedArrows = true, 5000);
+		});
+		this.skipButton = new UiButton("quick_buttons.png", 350, 75, 32, 32, () -> nextLevel());
+		this.clearButton = new UiButton("quick_buttons.png", 400, 75, 32, 32, () -> resetLevel());
+		this.hintButton = new UiButton("quick_buttons.png", 450, 75, 32, 32, () -> displayHint());
 
 		// Load all the levels
 		loadLevels();
@@ -140,8 +149,11 @@ public class PlayScreen extends GameScreen{
 	public void handleMouseReleased(MouseEvent e, double scale, double offsetX){
 		if (!this.inputAllowed) return;	
 		if (e.getButton() == MouseButton.PRIMARY){
-			int px = (int)((this.mouseX-this.spaceX)/Tile.SIZE);
-			int py = (int)((this.mouseY-this.spaceY)/Tile.SIZE);
+			double px0 = (this.mouseX-this.spaceX)/Tile.SIZE;
+			double py0 = (this.mouseY-this.spaceY)/Tile.SIZE;
+			if (px0 < 0 || py0 < 0) return;
+			int px = (int)px0;
+			int py = (int)py0;
 			Tile after = null;
 			final int idx = this.currentWorld.getInventory().mapIndexToType(this.selectedItem);
 			switch (idx){
@@ -223,15 +235,15 @@ public class PlayScreen extends GameScreen{
 		if (!this.inputAllowed) return;
 		this.mouseX = (e.getX()-offsetX)/scale;
 		this.mouseY = e.getY()/scale;
-		int px = (int)((this.mouseX-this.spaceX)/Tile.SIZE);
-		int py = (int)((this.mouseY-this.spaceY)/Tile.SIZE);
-		Tile tile = this.currentWorld.getTileAt(px, py);
+		double px = (this.mouseX-this.spaceX)/Tile.SIZE;
+		double py = (this.mouseY-this.spaceY)/Tile.SIZE;
+		Tile tile = this.currentWorld.getTileAt((int)px, (int)py);
 		for (int x = 0; x < this.currentWorld.getWidth(); x++){
 			for (int y = 0; y < this.currentWorld.getHeight(); y++){
 				this.currentWorld.getTileAt(x, y).setShowArrow(false);
 			}
 		}
-		if (tile != null){
+		if (tile != null && px > 0 && py > 0){
 			if (tile instanceof Flippable){
 				tile.setShowArrow(!((Flippable)tile).isFlippingDisabled());
 			} else if (tile instanceof Rotatable){
@@ -242,35 +254,49 @@ public class PlayScreen extends GameScreen{
 
 	@Override
 	public void handleMouseInput(MouseEvent e, double scale, double offsetX){
-		if (!this.inputAllowed) return;
-		int px = (int)(((e.getX()-offsetX)/scale-this.spaceX)/Tile.SIZE);
-		int py = (int)((e.getY()/scale-this.spaceY)/Tile.SIZE);
-		if (e.getButton() == MouseButton.PRIMARY){
-			for (int i = 0; i < this.currentWorld.getInventory().getItems().size(); i++){
-				Rectangle2D rect = new Rectangle2D(this.width-120, 60+i*90, 80, 80);
-				if (rect.contains((e.getX()-offsetX)/scale, e.getY()/scale)){
-					this.selectedItem = i;
-					Util.playSound("button_click.wav");
-					break;
+		if (this.inputAllowed){
+			double px = (this.mouseX-this.spaceX)/Tile.SIZE;
+			double py = (this.mouseY-this.spaceY)/Tile.SIZE;
+			if (e.getButton() == MouseButton.PRIMARY){
+				double mx = (e.getX()-offsetX)/scale;
+				double my = e.getY()/scale;
+				for (int i = 0; i < this.currentWorld.getInventory().getItems().size(); i++){
+					Rectangle2D rect = new Rectangle2D(this.width-120, 60+i*90, 80, 80);
+					if (rect.contains(mx, my)){
+						this.selectedItem = i;
+						Util.playSound("button_click.wav");
+						break;
+					}
+				}
+
+				this.infoButton.click(mx, my);
+				this.skipButton.click(mx, my);
+				this.clearButton.click(mx, my);
+				this.hintButton.click(mx, my);
+			} else if (e.getButton() == MouseButton.SECONDARY){
+				if (px > 0 && py > 0){
+					Tile tile = this.currentWorld.getTileAt((int)px, (int)py);
+					if (tile instanceof Flippable){
+						if (!((Flippable)tile).isFlippingDisabled()){
+							((Flippable)tile).flip();
+							Util.playSound("tile_used.wav");
+							updateWorld();
+						}
+					} else if (tile instanceof Rotatable){
+						if (!((Rotatable)tile).isRotationDisabled()){
+							((Rotatable)tile).rotate90();
+							if (tile instanceof LaserTile){
+								this.currentLaser.rotate90();
+							}
+							Util.playSound("tile_used.wav");
+							updateWorld();
+						}
+					}
 				}
 			}
-		} else if (e.getButton() == MouseButton.SECONDARY){
-			Tile tile = this.currentWorld.getTileAt(px, py);
-			if (tile instanceof Flippable){
-				if (!((Flippable)tile).isFlippingDisabled()){
-					((Flippable)tile).flip();
-					Util.playSound("tile_used.wav");
-					updateWorld();
-				}
-			} else if (tile instanceof Rotatable){
-				if (!((Rotatable)tile).isRotationDisabled()){
-					((Rotatable)tile).rotate90();
-					if (tile instanceof LaserTile){
-						this.currentLaser.rotate90();
-					}
-					Util.playSound("tile_used.wav");
-					updateWorld();
-				}
+		} else {
+			if (this.levelCompleted){
+				completeLevel();
 			}
 		}
 	}
@@ -335,6 +361,50 @@ public class PlayScreen extends GameScreen{
 		}
 	}
 
+	private void nextLevel(){
+		this.levelCompleted = true;
+		this.inputAllowed = false;
+		this.hintTile = null;
+		Util.playSound("invalid.wav");
+	}
+
+	private void resetLevel(){
+		loadLevels();
+		loadWorld(this.currentLevel);
+	}
+
+	private void displayHint(){
+		if (this.hintTile == null){
+			this.hintTile = this.solutions.getHint(this.currentWorld, this.currentLevel);
+			Util.schedule(() -> this.hintTile = null, 1500);
+		}
+	}
+
+	private void displayInfo(){
+		for (int x = 0; x < this.currentWorld.getWidth(); x++){
+			for (int y = 0; y < this.currentWorld.getHeight(); y++){
+				Tile tile = this.currentWorld.getTileAt(x, y);
+				if (tile instanceof Flippable){
+					tile.setShowArrow(!((Flippable)tile).isFlippingDisabled());
+				} else if (tile instanceof Rotatable){
+					tile.setShowArrow(!((Rotatable)tile).isRotationDisabled());
+				}
+			}
+		}
+	}
+
+	private void completeLevel(){
+		this.currentLevel++;
+		if (this.currentLevel >= this.worlds.size()){
+			SCREEN_SWITCHER.accept(new HomeScreen(this.width, this.height, this.keys));
+		} else {
+			loadWorld(this.currentLevel);
+			this.levelCompleted = false;
+			this.inputAllowed = true;
+			this.selectedItem = -1;
+		}
+	}
+
 	@Override
 	public void update(GraphicsContext gc, double scale){
 		super.update(gc, scale);
@@ -342,33 +412,19 @@ public class PlayScreen extends GameScreen{
 		// Skip/restart the level
 		if (this.inputAllowed){
 			if (this.keys.getOrDefault(KeyCode.N, false)){
-				this.levelCompleted = true;
-				Util.playSound("invalid.wav");
+				nextLevel();
 				this.keys.put(KeyCode.N, false);
 			} else if (this.keys.getOrDefault(KeyCode.R, false)){
-				loadLevels();
-				loadWorld(this.currentLevel);
+				resetLevel();
 				this.keys.put(KeyCode.R, false);
 			} else if (this.keys.getOrDefault(KeyCode.H, false)){
-				if (this.hintTile == null){
-					this.hintTile = this.solutions.getHint(this.currentWorld, this.currentLevel);
-					Util.schedule(() -> this.hintTile = null, 1500);
-				}
+				displayHint();
 				this.keys.put(KeyCode.H, false);
 			}
 		}
 
 		if (this.keys.getOrDefault(KeyCode.I, false) && this.inputAllowed){
-			for (int x = 0; x < this.currentWorld.getWidth(); x++){
-				for (int y = 0; y < this.currentWorld.getHeight(); y++){
-					Tile tile = this.currentWorld.getTileAt(x, y);
-					if (tile instanceof Flippable){
-						tile.setShowArrow(!((Flippable)tile).isFlippingDisabled());
-					} else if (tile instanceof Rotatable){
-						tile.setShowArrow(!((Rotatable)tile).isRotationDisabled());
-					}
-				}
-			}
+			displayInfo();
 			this.justShowedArrows = true;
 		} else if (this.justShowedArrows || !this.inputAllowed){
 			for (int x = 0; x < this.currentWorld.getWidth(); x++){
@@ -412,6 +468,11 @@ public class PlayScreen extends GameScreen{
 		}
 		gc.translate(-this.spaceX, -this.spaceY);
 
+		this.infoButton.render(gc, 0);
+		this.skipButton.render(gc, 1);
+		this.clearButton.render(gc, 2);
+		this.hintButton.render(gc, 3);
+
 		gc.save();
 		gc.setGlobalAlpha(0.6);
 		gc.setFill(Color.WHITE);
@@ -448,15 +509,7 @@ public class PlayScreen extends GameScreen{
 
 		if (this.levelCompleted){
 			if (this.keys.getOrDefault(KeyCode.SPACE, false)){
-				this.currentLevel++;
-				if (this.currentLevel >= this.worlds.size()){
-					SCREEN_SWITCHER.accept(new HomeScreen(this.width, this.height, this.keys));
-				} else {
-					loadWorld(this.currentLevel);
-					this.levelCompleted = false;
-					this.inputAllowed = true;
-					this.selectedItem = -1;
-				}
+				completeLevel();
 				this.keys.put(KeyCode.SPACE, false);
 			}
 
@@ -467,7 +520,7 @@ public class PlayScreen extends GameScreen{
 			gc.setFill(Color.RED);
 			gc.setFont(FONT);
 			gc.setTextAlign(TextAlignment.CENTER);
-			gc.fillText("Level completed!\nPress space to continue", this.width/2.0, this.height-80);
+			gc.fillText("Level completed!\nClick/Press space to continue", this.width/2.0, this.height-80);
 			gc.restore();
 		}
 
