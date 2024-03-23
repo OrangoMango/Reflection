@@ -31,4 +31,8 @@ public class UiButton{
 	public void render(GraphicsContext gc){
 		gc.drawImage(AssetLoader.getInstance().getImage(this.imageName), this.x, this.y, this.width, this.height);
 	}
+
+	public void render(GraphicsContext gc, int frameIndex){
+		gc.drawImage(AssetLoader.getInstance().getImage(this.imageName), 1+frameIndex*34, 1, 32, 32, this.x, this.y, this.width, this.height);
+	}
 }

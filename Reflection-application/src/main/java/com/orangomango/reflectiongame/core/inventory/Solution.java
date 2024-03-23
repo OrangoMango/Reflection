@@ -21,6 +21,7 @@ public class Solution{
 					this.solutions.add(cWorld);
 					matrix.clear();
 					firstProp = true;
+					cWorld = null;
 				} else {
 					if (line.startsWith("- ")){
 						if (firstProp){

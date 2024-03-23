@@ -22,7 +22,7 @@ end
 - 1 4 rot 2
 end
 
-[EZ 1]
+[SOLUTION 2]
 6 8 0 0 0 0
 5 0 0 0 0 0
 0 0 0 0 0 0
@@ -35,7 +35,7 @@ end
 - 1 4 rot 3
 end
 
-[SOLUTION 2]
+[SOLUTION 3]
 0 0 6 0 6
 6 0 5 0 3
 0 8 0 0 1
@@ -53,7 +53,7 @@ end
 - 0 4 rot 0
 end
 
-[SOLUTION 3]
+[SOLUTION 4]
 8 0 0 3 6
 0 6 0 0 0
 6 3 5 1 6
@@ -71,7 +71,7 @@ end
 - 3 4 rot 2
 end
 
-[SOLUTION 4]
+[SOLUTION 5]
 0 6 0 0 6
 0 0 0 0 0
 0 0 0 0 0
@@ -89,7 +89,7 @@ end
 - 4 4 rot 3
 end
 
-[SOLUTION 5]
+[SOLUTION 6]
 6 6 0 0 0
 0 0 0 0 0
 3 1 3 5 8
@@ -106,7 +106,7 @@ end
 - 1 4 rot 3
 end
 
-[SOLUTION 6]
+[SOLUTION 7]
 0 3 0 0 6
 0 1 0 0 6
 0 0 6 6 0
@@ -124,7 +124,7 @@ end
 - 4 3 rot 3
 end
 
-[SOLUTION 7]
+[SOLUTION 8]
 3 0 3 0 0
 0 0 5 0 0
 0 0 0 0 0
@@ -141,7 +141,93 @@ end
 - 2 4 rot 1
 end
 
-[SOLUTION 8]
+[SOLUTION 9]
+6 0 3 1 0
+0 0 0 0 0
+0 0 0 3 0
+8 0 6 0 6
+0 0 0 6 0
+- 0 0 rot 1
+- 2 0 flip 1
+- 3 0 flip 1
+- 3 2 flip 0
+- 0 3 rot 0
+- 2 3 rot 0
+- 4 3 rot 1
+- 3 4 rot 2
+end
+
+[SOLUTION 10]
+0 0 0 0 8
+6 1 0 0 0
+0 0 6 6 0
+6 3 3 5 6
+0 0 0 0 0
+- 4 0 rot 2
+- 0 1 rot 3
+- 1 1 flip 1
+- 2 2 rot 1
+- 3 2 rot 1
+- 0 3 rot 3
+- 1 3 flip 1
+- 2 3 flip 1
+- 3 3 flip 1
+- 4 3 rot 3
+end
+
+[SOLUTION 11]
+8 0 3 6 0
+0 0 5 0 0
+6 0 0 0 0
+6 3 1 0 0
+0 6 0 0 0
+- 0 0 rot 1
+- 2 0 flip 1
+- 3 0 rot 1
+- 2 1 flip 0
+- 0 2 rot 0
+- 0 3 rot 0
+- 1 3 flip 0
+- 2 3 flip 0
+- 1 4 rot 2
+end
+
+[SOLUTION 12]
+6 0 0 0 8
+0 0 3 3 6
+6 5 6 0 0
+1 0 0 6 0
+0 0 0 0 0
+- 0 0 rot 0
+- 4 0 rot 2
+- 2 1 flip 0
+- 3 1 flip 0
+- 4 1 rot 3
+- 0 2 rot 0
+- 1 2 flip 1
+- 2 2 rot 3
+- 0 3 flip 1
+- 3 3 rot 3
+end
+
+[SOLUTION 13]
+0 0 0 0 0
+1 0 0 6 0
+0 0 6 0 0
+0 8 0 3 6
+6 0 3 0 6
+- 0 1 flip 0
+- 3 1 rot 2
+- 2 2 rot 0
+- 1 3 rot 1
+- 3 3 flip 0
+- 4 3 rot 1
+- 0 4 rot 0
+- 2 4 flip 0
+- 4 4 rot 1 
+end
+
+[SOLUTION 14]
 6 0 3 0 6
 6 5 0 0 1
 8 6 3 0 0
@@ -159,7 +245,7 @@ end
 - 2 3 rot 2
 end
 
-[SOLUTION 9]
+[SOLUTION 15]
 0 0 0 8 6
 0 0 0 0 5
 0 0 6 0 0
@@ -177,7 +263,7 @@ end
 - 4 4 flip 0
 end
 
-[SOLUTION 10]
+[SOLUTION 16]
 0 1 0 3 6
 6 6 0 0 0
 0 0 0 0 8
@@ -195,7 +281,7 @@ end
 - 3 4 rot 3
 end
 
-[SOLUTION 11]
+[SOLUTION 17]
 1 0 0 6 6
 3 0 0 0 6
 0 0 0 5 0
@@ -213,7 +299,7 @@ end
 - 3 4 rot 2
 end
 
-[SOLUTION 12]
+[SOLUTION 18]
 6 0 0 0 0
 6 3 0 6 0
 5 0 0 8 0
@@ -231,7 +317,7 @@ end
 - 1 4 rot 3
 end
 
-[SOLUTION 13]
+[SOLUTION 19]
 0 6 0 0 6
 1 0 0 0 3
 0 0 0 0 0
@@ -249,7 +335,7 @@ end
 - 4 4 rot 0
 end
 
-[SOLUTION 14]
+[SOLUTION 20]
 6 8 0 0 0
 0 0 0 0 6
 0 3 0 0 6
@@ -267,7 +353,7 @@ end
 - 1 4 flip 0
 end
 
-[SOLUTION 15]
+[SOLUTION 21]
 6 0 0 0 0
 0 0 0 0 0
 0 8 0 0 6
@@ -284,10 +370,24 @@ end
 - 4 4 rot 2
 end
 
-[SOLUTION 16]
+[SOLUTION 22]
+0 0 0 0 0
+8 1 0 0 0
+0 6 5 0 6
+6 3 0 0 3
+0 0 0 0 6
+- 0 1 rot 1
+- 1 1 flip 1
+- 1 2 rot 0
+- 2 2 flip 1
+- 4 2 rot 2
+- 0 3 rot 3
+- 1 3 flip 1
+- 4 3 flip 0
+- 4 4 rot 2
 end
 
-[SOLUTION 17]
+[SOLUTION 23]
 0 0 0 6 0
 0 0 6 0 6
 0 0 0 6 6
@@ -305,7 +405,7 @@ end
 - 0 4 rot 0
 end
 
-[SOLUTION 18]
+[SOLUTION 24]
 0 6 0 0 0
 6 0 0 0 6
 0 0 0 0 0
@@ -323,13 +423,25 @@ end
 - 4 4 rot 0
 end
 
-[SOLUTION 19]
+[SOLUTION 25]
+8 6 0 6 0
+1 0 0 3 6
+0 5 0 0 0
+0 6 0 0 3
+0 0 0 0 6
+- 0 0 rot 2
+- 1 0 rot 1
+- 3 0 rot 2
+- 0 1 flip 1
+- 3 1 flip 0
+- 4 1 rot 1
+- 1 2 flip 0
+- 1 3 rot 0
+- 4 3 flip 1
+- 4 4 rot 2
 end
 
-[SOLUTION 20]
-end
-
-[SOLUTION 21]
+[SOLUTION 26]
 0 0 0 0 0
 0 0 6 0 0
 8 5 0 3 3
@@ -347,7 +459,7 @@ end
 - 3 4 rot 3
 end
 
-[SOLUTION 22]
+[SOLUTION 27]
 0 0 0 6 0
 0 6 8 5 0
 0 6 3 0 6
@@ -365,7 +477,7 @@ end
 - 4 4 rot 1
 end
 
-[SOLUTION 23]
+[SOLUTION 28]
 6 0 5 3 6
 0 0 6 0 0
 3 0 0 0 0
@@ -383,7 +495,7 @@ end
 - 1 4 rot 3
 end
 
-[SOLUTION 24]
+[SOLUTION 29]
 0 6 5 6 0
 0 0 0 1 6
 0 3 0 0 0
@@ -400,7 +512,7 @@ end
 - 4 4 rot 3
 end
 
-[SOLUTION 25]
+[SOLUTION 30]
 0 6 0 8 0
 6 1 0 3 0
 5 0 0 3 0
