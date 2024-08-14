@@ -26,6 +26,7 @@ import com.orangomango.reflectiongame.Util;
 import com.orangomango.reflectiongame.core.*;
 import com.orangomango.reflectiongame.core.inventory.Inventory;
 import com.orangomango.reflectiongame.core.inventory.Solution;
+import com.orangomango.reflectiongame.core.data.DataManager;
 
 public class PlayScreen extends GameScreen{
 	private World currentWorld;
@@ -34,11 +35,14 @@ public class PlayScreen extends GameScreen{
 	private int selectedItem = -1;
 	private double spaceX, spaceY;
 	private ArrayList<Pair<World, Laser>> worlds = new ArrayList<>();
-	private int currentLevel = 0;
+	private int currentLevel = 0; // If in editor mode, currentLevel = -1
 	private boolean levelCompleted, inputAllowed = true, justShowedArrows;
 	private Solution solutions;
 	private Tile hintTile;
 	private UiButton infoButton, skipButton, clearButton, hintButton;
+	private UiButton lessTargetsButton, moreTargetsButton, saveButton, loadButton, markMissingButton;
+	private boolean markMode = false;
+	private DataManager dataManager;
 
 	private static final Font FONT = Font.loadFont(PlayScreen.class.getResourceAsStream("/misc/font.ttf"), 40);
 	private static final Font FONT_SMALL = Font.loadFont(PlayScreen.class.getResourceAsStream("/misc/font.ttf"), 25);
@@ -54,85 +58,34 @@ public class PlayScreen extends GameScreen{
 		this.clearButton = new UiButton("quick_buttons.png", 400, 75, 32, 32, () -> resetLevel());
 		this.hintButton = new UiButton("quick_buttons.png", 450, 75, 32, 32, () -> displayHint());
 
+		this.lessTargetsButton = new UiButton("quick_buttons.png", 250, 75, 32, 32, () -> this.currentWorld.getInventory().modifyTargets(-1));
+		this.moreTargetsButton = new UiButton("quick_buttons.png", 300, 75, 32, 32, () -> this.currentWorld.getInventory().modifyTargets(1));
+		this.saveButton = new UiButton("quick_buttons.png", 350, 75, 32, 32, () -> saveCustomWorld());
+		this.loadButton = new UiButton("quick_buttons.png", 400, 75, 32, 32, () -> System.out.println("4"));
+		this.markMissingButton = new UiButton("quick_buttons.png", 450, 75, 32, 32, () -> {
+			this.markMode = !this.markMode;
+			if (this.markMode){
+				this.selectedItem = -1;
+			}
+		});
+
 		// Load all the levels
-		loadLevels();
+		this.worlds = DataManager.loadWorlds(getClass().getResourceAsStream("/misc/levels.data"));
 		this.currentLevel = startLevel;
 		loadWorld(this.currentLevel);
 		this.solutions = new Solution();
-	}
 
-	private void loadLevels(){
-		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/misc/levels.data")));
-			String line;
-			World cWorld = null;
-			Laser cLaser = null;
-			Inventory cInv = null;
-			ArrayList<Light> lights = new ArrayList<>();
-			ArrayList<String> matrix = new ArrayList<>();
-			this.worlds.clear();
-			while ((line = reader.readLine()) != null){
-				if (!line.startsWith("[") && !line.isBlank()){
-					if (line.equals("end")){
-						this.worlds.add(new Pair<World, Laser>(cWorld, cLaser));
-						matrix.clear();
-						lights.clear();
-					} else {
-						if (line.startsWith(". ")){
-							// Pretty useless
-							int lx = Integer.parseInt(line.substring(2).split(" ")[0]);
-							int ly = Integer.parseInt(line.substring(2).split(" ")[1]);
-							lights.add(new Light(lx, ly));
-						} else if (line.startsWith("- ")){
-							cWorld = new World(matrix, new ArrayList<>(lights), cInv);
-							if (line.length() > 2){
-								int lx = Integer.parseInt(line.substring(2).split(" ")[0]);
-								int ly = Integer.parseInt(line.substring(2).split(" ")[1]);
-								int ld = Integer.parseInt(line.substring(2).split(" ")[3]);
-								Tile tile = cWorld.getTileAt(lx, ly);
-								cLaser = new Laser(null, cWorld, lx, ly, ld);
-								((Rotatable)tile).setRotationDisabled(line.substring(2).split(" ")[2].equals("noRot"));
-								for (int i = 0; i < ld; i++){
-									((Rotatable)tile).rotate90();
-								}
-							} else {
-								cLaser = null;
-							}
-						} else if (line.startsWith(": ")){
-							int tx = Integer.parseInt(line.substring(2).split(" ")[0]);
-							int ty = Integer.parseInt(line.substring(2).split(" ")[1]);
-							Tile tile = cWorld.getTileAt(tx, ty);
-							if (tile instanceof Rotatable){
-								((Rotatable)tile).setRotationDisabled(line.substring(2).split(" ")[2].equals("noRot"));
-								int am = Integer.parseInt(line.substring(2).split(" ")[3]);
-								for (int i = 0; i < am; i++){
-									((Rotatable)tile).rotate90();
-								}
-							} else if (tile instanceof Flippable){
-								((Flippable)tile).setFlippingDisabled(line.substring(2).split(" ")[2].equals("noFlip"));
-								if (line.substring(2).split(" ")[3].equals("flip")){
-									((Flippable)tile).flip();
-								}
-							} else {
-								throw new RuntimeException("Tile can't be rotated/flipped");
-							}
-						} else if (line.startsWith("#")){
-							cInv = new Inventory(line);
-						} else {
-							matrix.add(line);
-						}
-					}
-				}
-			}
-			reader.close();
-		} catch (IOException ex){
-			ex.printStackTrace();
-		}
+		this.dataManager = new DataManager(".reflection");
 	}
 
 	private void loadWorld(int index){
-		this.currentWorld = this.worlds.get(index).getKey();
-		this.currentLaser = this.worlds.get(index).getValue();
+		if (index == -1){
+			this.currentWorld = World.customWorld();
+			this.currentLaser = null;
+		} else {
+			this.currentWorld = this.worlds.get(index).getKey();
+			this.currentLaser = this.worlds.get(index).getValue();
+		}
 		this.spaceX = 65;
 		this.spaceY = (this.height-this.currentWorld.getHeight()*Tile.SIZE)/2;
 		updateWorld();
@@ -147,7 +100,7 @@ public class PlayScreen extends GameScreen{
 
 	@Override
 	public void handleMouseReleased(MouseEvent e, double scale, double offsetX){
-		if (!this.inputAllowed) return;	
+		if (!this.inputAllowed || this.markMode) return;	
 		if (e.getButton() == MouseButton.PRIMARY){
 			double px0 = (this.mouseX-this.spaceX)/Tile.SIZE;
 			double py0 = (this.mouseY-this.spaceY)/Tile.SIZE;
@@ -172,7 +125,10 @@ public class PlayScreen extends GameScreen{
 				case 3:
 					after = new Checkpoint(px, py);
 					break;
-				case 5: // TODO: Change 5 to 4
+				case 4:
+					after = new BlockTile(px, py);
+					break;
+				case 5:
 					after = new LaserTile(px, py);
 					break;
 			}
@@ -235,19 +191,21 @@ public class PlayScreen extends GameScreen{
 		if (!this.inputAllowed) return;
 		this.mouseX = (e.getX()-offsetX)/scale;
 		this.mouseY = e.getY()/scale;
-		double px = (this.mouseX-this.spaceX)/Tile.SIZE;
-		double py = (this.mouseY-this.spaceY)/Tile.SIZE;
-		Tile tile = this.currentWorld.getTileAt((int)px, (int)py);
-		for (int x = 0; x < this.currentWorld.getWidth(); x++){
-			for (int y = 0; y < this.currentWorld.getHeight(); y++){
-				this.currentWorld.getTileAt(x, y).setShowArrow(false);
+		if (!this.markMode){
+			double px = (this.mouseX-this.spaceX)/Tile.SIZE;
+			double py = (this.mouseY-this.spaceY)/Tile.SIZE;
+			Tile tile = this.currentWorld.getTileAt((int)px, (int)py);
+			for (int x = 0; x < this.currentWorld.getWidth(); x++){
+				for (int y = 0; y < this.currentWorld.getHeight(); y++){
+					this.currentWorld.getTileAt(x, y).setShowArrow(false);
+				}
 			}
-		}
-		if (tile != null && px > 0 && py > 0){
-			if (tile instanceof Flippable){
-				tile.setShowArrow(!((Flippable)tile).isFlippingDisabled());
-			} else if (tile instanceof Rotatable){
-				tile.setShowArrow(!((Rotatable)tile).isRotationDisabled());
+			if (tile != null && px > 0 && py > 0){
+				if (tile instanceof Flippable){
+					tile.setShowArrow(!((Flippable)tile).isFlippingDisabled());
+				} else if (tile instanceof Rotatable){
+					tile.setShowArrow(!((Rotatable)tile).isRotationDisabled());
+				}
 			}
 		}
 	}
@@ -257,22 +215,55 @@ public class PlayScreen extends GameScreen{
 		if (this.inputAllowed){
 			double px = (this.mouseX-this.spaceX)/Tile.SIZE;
 			double py = (this.mouseY-this.spaceY)/Tile.SIZE;
+			double mx = (e.getX()-offsetX)/scale;
+			double my = e.getY()/scale;
+					
 			if (e.getButton() == MouseButton.PRIMARY){
-				double mx = (e.getX()-offsetX)/scale;
-				double my = e.getY()/scale;
-				for (int i = 0; i < this.currentWorld.getInventory().getItems().size(); i++){
-					Rectangle2D rect = new Rectangle2D(this.width-120, 60+i*90, 80, 80);
-					if (rect.contains(mx, my)){
-						this.selectedItem = i;
-						Util.playSound("button_click.wav");
-						break;
+				if (this.currentLevel == -1 && this.markMode){
+					if (px > 0 && py > 0){
+						Tile tile = this.currentWorld.getTileAt((int)px, (int)py);
+						if (tile != null && (tile.getId() == 1 || tile.getId() == 2 || tile.getId() == 3 || tile.getId() == 4 || tile.getId() == 6)){
+							if (tile.isMarked()){
+								if (tile instanceof Rotatable || tile instanceof Flippable){
+									tile.setLocked(true);
+									tile.setMarked(false);
+								} else {
+									tile.setMarked(false);
+								}
+							} else {
+								if (tile.isLocked()){
+									tile.setLocked(false);
+								} else {
+									tile.setMarked(true);
+								}
+							}
+						}
 					}
 				}
 
-				this.infoButton.click(mx, my);
-				this.skipButton.click(mx, my);
-				this.clearButton.click(mx, my);
-				this.hintButton.click(mx, my);
+				if (!this.markMode){
+					for (int i = 0; i < this.currentWorld.getInventory().getItems().size(); i++){
+						Rectangle2D rect = new Rectangle2D(this.width-120, 50+i*90, 80, 80);
+						if (rect.contains(mx, my)){
+							this.selectedItem = i;
+							Util.playSound("button_click.wav");
+							break;
+						}
+					}
+				}
+
+				if (this.currentLevel == -1){
+					this.lessTargetsButton.click(mx, my);
+					this.moreTargetsButton.click(mx, my);
+					this.saveButton.click(mx, my);
+					this.loadButton.click(mx, my);
+					this.markMissingButton.click(mx, my);
+				} else {
+					this.infoButton.click(mx, my);
+					this.skipButton.click(mx, my);
+					this.clearButton.click(mx, my);
+					this.hintButton.click(mx, my);
+				}
 			} else if (e.getButton() == MouseButton.SECONDARY){
 				if (px > 0 && py > 0){
 					Tile tile = this.currentWorld.getTileAt((int)px, (int)py);
@@ -315,6 +306,9 @@ public class PlayScreen extends GameScreen{
 			case 4:
 				this.currentWorld.getInventory().getItems().put(0, this.currentWorld.getInventory().getItems().get(0)+inc);
 				break; // SingleMirror
+			case 5:
+				this.currentWorld.getInventory().getItems().put(4, this.currentWorld.getInventory().getItems().get(4)+inc);
+				break; // BlockTile
 			case 6:
 				this.currentWorld.getInventory().getItems().put(5, this.currentWorld.getInventory().getItems().get(5)+inc);
 				break; // Laser
@@ -337,19 +331,7 @@ public class PlayScreen extends GameScreen{
 		if (this.currentLaser != null){
 			this.currentLaser.update();
 			if (this.currentLaser.getCheckpointsPassed() == this.currentWorld.getCheckpoints()){
-				long onLights = this.currentWorld.getLights().stream().filter(l -> l.isOn()).count();
-				boolean allLaser = true;
-				for (int x = 0; x < this.currentWorld.getWidth(); x++){
-					for (int y = 0; y < this.currentWorld.getHeight(); y++){
-						Tile tile = this.currentWorld.getTileAt(x, y);
-						// Tiles excluded: empty tile, laser tile and block tile
-						if (tile.getId() != 5 && tile.getId() != 0 && tile.getId() != 6 && !tile.hasLaser){
-							allLaser = false;
-						}
-					}
-				}
-
-				if (allLaser && onLights >= this.currentWorld.getInventory().getTargets() && !this.levelCompleted && this.currentWorld.getInventory().isEmpty()){
+				if (isLevelCompleted() && !this.levelCompleted){
 					this.inputAllowed = false;
 					this.hintTile = null;
 					Util.schedule(() -> {
@@ -361,6 +343,32 @@ public class PlayScreen extends GameScreen{
 		}
 	}
 
+	private void saveCustomWorld(){
+		System.out.println("Saving");
+		if (isLevelCompleted()){
+			this.dataManager.saveWorld(this.currentWorld);
+			System.out.println("Done");
+		} else {
+			System.out.println("Level not completed");
+		}
+	}
+
+	private boolean isLevelCompleted(){
+		long onLights = this.currentWorld.getLights().stream().filter(l -> l.isOn()).count();
+		boolean allLaser = true;
+		for (int x = 0; x < this.currentWorld.getWidth(); x++){
+			for (int y = 0; y < this.currentWorld.getHeight(); y++){
+				Tile tile = this.currentWorld.getTileAt(x, y);
+				// Tiles excluded: empty tile, laser tile and block tile
+				if (tile.getId() != 5 && tile.getId() != 0 && tile.getId() != 6 && !tile.hasLaser){
+					allLaser = false;
+				}
+			}
+		}
+
+		return allLaser && onLights >= this.currentWorld.getInventory().getTargets() && (this.currentLevel == -1 || this.currentWorld.getInventory().isEmpty());
+	}
+
 	private void nextLevel(){
 		this.levelCompleted = true;
 		this.inputAllowed = false;
@@ -369,7 +377,7 @@ public class PlayScreen extends GameScreen{
 	}
 
 	private void resetLevel(){
-		loadLevels();
+		this.worlds = DataManager.loadWorlds(getClass().getResourceAsStream("/misc/levels.data"));
 		loadWorld(this.currentLevel);
 	}
 
@@ -410,7 +418,7 @@ public class PlayScreen extends GameScreen{
 		super.update(gc, scale);
 
 		// Skip/restart the level
-		if (this.inputAllowed){
+		if (this.inputAllowed && this.currentLevel >= 0){
 			if (this.keys.getOrDefault(KeyCode.N, false)){
 				nextLevel();
 				this.keys.put(KeyCode.N, false);
@@ -436,7 +444,7 @@ public class PlayScreen extends GameScreen{
 		}
 
 		if (this.keys.getOrDefault(KeyCode.Q, false)){
-			File file = new File(System.getProperty("user.home"), "reflection_level-"+this.currentLevel+".png");
+			File file = new File(this.dataManager.getGameDataFolder(), "reflection_level-"+this.currentLevel+".png");
 			if (file != null){
 				try {
 					Canvas miniCanvas = new Canvas(Tile.SIZE*this.currentWorld.getWidth(), Tile.SIZE*this.currentWorld.getHeight());
@@ -468,35 +476,46 @@ public class PlayScreen extends GameScreen{
 		}
 		gc.translate(-this.spaceX, -this.spaceY);
 
-		this.infoButton.render(gc, 0);
-		this.skipButton.render(gc, 1);
-		this.clearButton.render(gc, 2);
-		this.hintButton.render(gc, 3);
+		if (this.currentLevel == -1){
+			this.lessTargetsButton.render(gc, 4);
+			this.moreTargetsButton.render(gc, 5);
+			this.saveButton.render(gc, 6);
+			this.loadButton.render(gc, 7);
+			this.markMissingButton.render(gc, 8);
+		} else {
+			this.infoButton.render(gc, 0);
+			this.skipButton.render(gc, 1);
+			this.clearButton.render(gc, 2);
+			this.hintButton.render(gc, 3);
+		}
 
 		gc.save();
 		gc.setGlobalAlpha(0.6);
 		gc.setFill(Color.WHITE);
-		gc.fillRect(this.width-165, 50, 150, 90*this.currentWorld.getInventory().getItems().size()+10);
+		gc.fillRect(this.width-175, 35, 160, 90*this.currentWorld.getInventory().getItems().size()+10);
 		gc.restore();
 
 		for (int i = 0; i < this.currentWorld.getInventory().getItems().size(); i++){
 			int index = this.currentWorld.getInventory().mapIndexToType(i);
-			gc.drawImage(AssetLoader.getInstance().getImage("items.png"), 1+index*34, 1, 32, 32, this.width-120, 60+i*90, 80, 80);
+			gc.drawImage(AssetLoader.getInstance().getImage("items.png"), 1+index*34, 1, 32, 32, this.width-120, 50+i*90, 80, 80);
 			gc.setFont(FONT);
 			gc.setTextAlign(TextAlignment.LEFT);
 			gc.setFill(Color.BLACK);
-			gc.fillText(Integer.toString(this.currentWorld.getInventory().getItems().get(index)), this.width-120-25, 60+i*90+40);
+			gc.fillText(Integer.toString(this.currentWorld.getInventory().getItems().get(index)), this.width-120-40, 50+i*90+40);
 		}
 
 		gc.setFont(FONT);
 		gc.setFill(Color.BLACK);
-		gc.setTextAlign(TextAlignment.CENTER);
-		gc.fillText(this.currentLevel+". Number of targets: "+this.currentWorld.getLights().stream().filter(l -> l.isOn()).count()+"/"+this.currentWorld.getInventory().getTargets(), this.width/2, 50);
-
-		gc.setFont(FONT_SMALL);
-		gc.setFill(Color.WHITE);
 		gc.setTextAlign(TextAlignment.LEFT);
-		gc.fillText("I - Info | N - Skip | R - Restart | H - Hint | Q - Screenshot", 50, this.height-60);
+		String levelInfoText = this.currentLevel == -1 ? "Custom level mode (Targets: "+this.currentWorld.getInventory().getTargets()+")" : this.currentLevel+". Number of targets: "+this.currentWorld.getLights().stream().filter(l -> l.isOn()).count()+"/"+this.currentWorld.getInventory().getTargets();
+		gc.fillText(levelInfoText, 30, 50);
+
+		if (this.currentLevel >= 0){
+			gc.setFont(FONT_SMALL);
+			gc.setFill(Color.WHITE);
+			gc.setTextAlign(TextAlignment.LEFT);
+			gc.fillText("I - Info | N - Skip | R - Restart | H - Hint | Q - Screenshot", 50, this.height-60);
+		}
 
 		// Render the selected tool
 		if (this.selectedItem != -1){
@@ -521,6 +540,14 @@ public class PlayScreen extends GameScreen{
 			gc.setFont(FONT);
 			gc.setTextAlign(TextAlignment.CENTER);
 			gc.fillText("Level completed!\nClick/Press space to continue", this.width/2.0, this.height-80);
+			gc.restore();
+		}
+
+		if (this.markMode){
+			gc.save();
+			gc.setGlobalAlpha(0.5);
+			gc.setFill(Color.BLACK);
+			gc.fillRect(0, 0, this.width, this.height);
 			gc.restore();
 		}
 

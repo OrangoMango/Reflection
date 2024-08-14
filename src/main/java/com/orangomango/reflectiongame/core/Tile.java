@@ -8,7 +8,7 @@ public class Tile{
 	protected int x, y;
 	protected int id;
 	private boolean prePlaced;
-	private boolean showArrow;
+	private boolean showArrow, marked, locked;
 	public boolean hasLaser;
 
 	public static final double SIZE = 64;
@@ -56,5 +56,21 @@ public class Tile{
 
 	public boolean isShowArrow(){
 		return this.showArrow;
+	}
+
+	public void setMarked(boolean value){
+		this.marked = value;
+	}
+
+	public boolean isMarked(){
+		return this.marked;
+	}
+
+	public void setLocked(boolean value){
+		this.locked = value;
+	}
+
+	public boolean isLocked(){
+		return this.locked;
 	}
 }

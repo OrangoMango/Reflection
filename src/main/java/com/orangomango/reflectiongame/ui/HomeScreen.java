@@ -9,16 +9,18 @@ import java.util.HashMap;
 import com.orangomango.reflectiongame.AssetLoader;
 
 public class HomeScreen extends GameScreen{
-	private UiButton playButton, creditsButton, levelsButton;
+	private UiButton playButton, creditsButton, levelsButton, tutorialButton, customButton;
 
 	private static final double BUTTON_WIDTH = 300;
 	private static final double BUTTON_HEIGHT = 100;
 
 	public HomeScreen(int w, int h, HashMap<KeyCode, Boolean> keys){
 		super(w, h, keys);
-		this.playButton = new UiButton("button_play.png", w*0.5-BUTTON_WIDTH*1.1, h*0.5-BUTTON_HEIGHT*0.5, BUTTON_WIDTH, BUTTON_HEIGHT, () -> SCREEN_SWITCHER.accept(new PlayScreen(this.width, this.height, this.keys, 0)));
-		this.creditsButton = new UiButton("button_credits.png", w*0.5-BUTTON_WIDTH*0.5, h*0.5-BUTTON_HEIGHT*0.5+BUTTON_HEIGHT*1.3, BUTTON_WIDTH, BUTTON_HEIGHT, () -> SCREEN_SWITCHER.accept(new CreditsScreen(this.width, this.height, this.keys)));
-		this.levelsButton = new UiButton("button_levels.png", w*0.5+BUTTON_WIDTH*0.1, h*0.5-BUTTON_HEIGHT*0.5, BUTTON_WIDTH, BUTTON_HEIGHT, () -> SCREEN_SWITCHER.accept(new LevelsScreen(this.width, this.height, this.keys)));
+		this.playButton = new UiButton("button_play.png", w*0.5-BUTTON_WIDTH*1.1, h*0.4-BUTTON_HEIGHT*0.5, BUTTON_WIDTH, BUTTON_HEIGHT, () -> SCREEN_SWITCHER.accept(new PlayScreen(this.width, this.height, this.keys, 0)));
+		this.creditsButton = new UiButton("button_credits.png", w*0.5-BUTTON_WIDTH*1.1, h*0.4-BUTTON_HEIGHT*0.5+BUTTON_HEIGHT*1.3, BUTTON_WIDTH, BUTTON_HEIGHT, () -> SCREEN_SWITCHER.accept(new CreditsScreen(this.width, this.height, this.keys)));
+		this.levelsButton = new UiButton("button_levels.png", w*0.5+BUTTON_WIDTH*0.1, h*0.4-BUTTON_HEIGHT*0.5, BUTTON_WIDTH, BUTTON_HEIGHT, () -> SCREEN_SWITCHER.accept(new LevelsScreen(this.width, this.height, this.keys)));
+		this.tutorialButton = new UiButton("button_levels.png", w*0.5+BUTTON_WIDTH*0.1, h*0.4-BUTTON_HEIGHT*0.5+BUTTON_HEIGHT*1.3, BUTTON_WIDTH, BUTTON_HEIGHT, () -> System.out.println("TUTORIAL"));
+		this.customButton = new UiButton("button_levels.png", w*0.5-BUTTON_WIDTH*0.5, h*0.4-BUTTON_HEIGHT*0.5+BUTTON_HEIGHT*2*1.3, BUTTON_WIDTH, BUTTON_HEIGHT, () -> SCREEN_SWITCHER.accept(new PlayScreen(this.width, this.height, this.keys, -1)));
 	}
 
 	@Override
@@ -26,6 +28,8 @@ public class HomeScreen extends GameScreen{
 		this.playButton.click((e.getX()-offsetX)/scale, e.getY()/scale);
 		this.creditsButton.click((e.getX()-offsetX)/scale, e.getY()/scale);
 		this.levelsButton.click((e.getX()-offsetX)/scale, e.getY()/scale);
+		this.tutorialButton.click((e.getX()-offsetX)/scale, e.getY()/scale);
+		this.customButton.click((e.getX()-offsetX)/scale, e.getY()/scale);
 	}
 
 	@Override
@@ -41,6 +45,8 @@ public class HomeScreen extends GameScreen{
 		this.playButton.render(gc);
 		this.creditsButton.render(gc);
 		this.levelsButton.render(gc);
+		this.tutorialButton.render(gc);
+		this.customButton.render(gc);
 		gc.restore();
 		gc.restore();
 	}

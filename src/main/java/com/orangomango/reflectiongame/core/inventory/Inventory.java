@@ -40,4 +40,8 @@ public class Inventory{
 	public HashMap<Integer, Integer> getItems(){
 		return this.items;
 	}
+
+	public void modifyTargets(int delta){
+		this.targets = Math.max(1, Math.min(this.targets+delta, 24));
+	}
 }
