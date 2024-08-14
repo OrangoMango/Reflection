@@ -18,7 +18,7 @@ public class DataManager{
 		File dir = new File(System.getProperty("user.home"), folderName);
 		this.gameDataFolder = dir;
 		if (dir.exists()){
-			int maxId = Integer.MIN_VALUE;
+			int maxId = 0;
 			for (File file : dir.listFiles()){
 				if (file.getName().endsWith(".world")){
 					int wId = Integer.parseInt(file.getName().split("\\.world")[0].split("-")[1]);
@@ -61,7 +61,7 @@ public class DataManager{
 		for (int x = 0; x < world.getWidth(); x++){
 			for (int y = 0; y < world.getHeight(); y++){
 				Tile tile = world.getTileAt(x, y);
-				if (tile.getId() != 0){
+				if (tile.getId() != 0 && tile.isMarked()){
 					switch (tile.getId()){
 						case 1:
 							items.put(2, items.getOrDefault(2, 0)+1);
@@ -147,7 +147,7 @@ public class DataManager{
 									((Flippable)tile).flip();
 								}
 							} else {
-								throw new RuntimeException("Tile can't be rotated/flipped");
+								throw new RuntimeException("Tile can't be rotated/flipped: "+tx+" "+ty);
 							}
 						} else if (line.startsWith("#")){
 							cInv = new Inventory(line);

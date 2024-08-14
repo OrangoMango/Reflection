@@ -143,17 +143,17 @@ public class World{
 							builder.append("8");
 							break;
 					}
-				}
 
-				if (tile.getId() == 6){ // Laser tile
-					laserInfo = tile.getX()+" "+tile.getY()+" "+(tile.isLocked() ? "noRot" : "rot")+" "+((Rotatable)tile).getRotation();
-				} else {
-					if (tile instanceof Rotatable){
-						Rotatable rot = (Rotatable)tile;
-						information.add(tile.getX()+" "+tile.getY()+" "+(tile.isLocked() ? "noRot" : "rot")+" "+rot.getRotation());
-					} else if (tile instanceof Flippable){
-						Flippable flip = (Flippable)tile;
-						information.add(tile.getX()+" "+tile.getY()+" "+(tile.isLocked() ? "noFlip" : "flip")+" "+(flip.isFlipped() ? "flip" : "-"));
+					if (tile.getId() == 6){ // Laser tile
+						laserInfo = tile.getX()+" "+tile.getY()+" "+(tile.isLocked() ? "noRot" : "rot")+" "+((Rotatable)tile).getRotation();
+					} else {
+						if (tile instanceof Rotatable){
+							Rotatable rot = (Rotatable)tile;
+							information.add(tile.getX()+" "+tile.getY()+" "+(tile.isLocked() ? "noRot" : "rot")+" "+rot.getRotation());
+						} else if (tile instanceof Flippable){
+							Flippable flip = (Flippable)tile;
+							information.add(tile.getX()+" "+tile.getY()+" "+(tile.isLocked() ? "noFlip" : "flip")+" "+(flip.isFlipped() ? "flip" : "-"));
+						}
 					}
 				}
 
